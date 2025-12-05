@@ -15,7 +15,7 @@
     </a>
     <a
       v-else
-      href="https://github.com/skie"
+      href="https://github.com/crustum"
       target="_blank"
       rel="noopener noreferrer"
       class="github-link"

@@ -6,8 +6,8 @@ import { mermaidPlugin } from './plugins/mermaid-simple.js'
 export default defineConfig({
     srcDir: 'docs',
     // base: '/docs-test/', // Set to your repository name for GitHub Pages
-    // base: '/docs/', // Set to your repository name for GitHub Pages
-    base: '/', // Set to your repository name for GitHub Pages
+    base: '/docs/', // Set to your repository name for GitHub Pages
+    // base: '/', // Set to your repository name for GitHub Pages
     title: 'Crustum CakePHP Plugins',
     description: 'Modern CakePHP plugins',
     ignoreDeadLinks: true,
@@ -324,8 +324,8 @@ export default defineConfig({
                     {
                         text: 'Plugins',
                         items: [
-                            { text: 'Notification Plugin', link: '/Notification/' },
                             { text: 'Broadcasting Plugin', link: '/Broadcasting/' },
+                            { text: 'Notification Plugin', link: '/Notification/' },
                             { text: 'BroadcastingNotification', link: '/BroadcastingNotification/' },
                             { text: 'NotificationUI', link: '/NotificationUI/' },
                             { text: 'RocketChatNotification', link: '/RocketChatNotification/' },

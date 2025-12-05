@@ -7,19 +7,19 @@ hero:
   tagline: "Collection of powerful, flexible plugins for modern CakePHP applications"
   image:
     src: /logo.svg
-    alt: Evgeny Tomenko
+    alt: Crustum
   actions:
     - theme: alt
       text: View on GitHub
-      link: https://github.com/skie
+      link: https://github.com/crustum
 
 features:
-  - title: Notification Plugin
-    details: Comprehensive notification system for CakePHP applications. Send emails, SMS, push notifications, and in-app alerts with flexible delivery channels and templating.
-    link: /Notification/
   - title: Broadcasting Plugin
     details: Real-time broadcasting system for CakePHP applications. WebSocket support, event broadcasting, and real-time communication with multiple driver support.
     link: /Broadcasting/
+  - title: Notification Plugin
+    details: Comprehensive notification system for CakePHP applications. Send emails, SMS, push notifications, and in-app alerts with flexible delivery channels and templating.
+    link: /Notification/
   - title: BroadcastingNotification Plugin
     details: Integrated notification and broadcasting system combining real-time messaging with notification delivery for comprehensive communication solutions.
     link: /BroadcastingNotification/

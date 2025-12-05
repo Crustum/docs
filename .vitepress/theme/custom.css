@@ -63,7 +63,7 @@
 
 /* Create two-line title effect */
 .VPNavBarTitle .title span::before {
-    content: "Evgeny Tomenko";
+    content: "Crustum";
     display: block;
     line-height: 1.2;
     font-size: 1rem;
