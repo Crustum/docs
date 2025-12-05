@@ -36,7 +36,7 @@ This channel plugin provides:
 ### Installation via Composer
 
 ```bash
-composer require skie/notification-telegram
+composer require crustum/notification-telegram
 ```
 
 <a name="load-plugin"></a>
@@ -49,8 +49,8 @@ public function bootstrap(): void
 {
     parent::bootstrap();
 
-    $this->addPlugin('Cake/Notification');
-    $this->addPlugin('Cake/TelegramNotification');
+    $this->addPlugin('Crustum/Notification');
+    $this->addPlugin('Crustum/TelegramNotification');
 }
 ```
 
@@ -148,9 +148,9 @@ TELEGRAM_SUPPORT_BOT_TOKEN=345678:PQR-STU9012nopq-def23Y4x3y789ab33
 namespace App\Notification;
 
 use Cake\Datasource\EntityInterface;
-use Cake\Notification\AnonymousNotifiable;
-use Cake\Notification\Notification;
-use Cake\TelegramNotification\Message\TelegramMessage;
+use Crustum\Notification\AnonymousNotifiable;
+use Crustum\Notification\Notification;
+use Crustum\TelegramNotification\Message\TelegramMessage;
 
 class OrderShippedNotification extends Notification
 {
@@ -197,7 +197,7 @@ foreach ($users as $user) {
 #### On-Demand to Chat ID
 
 ```php
-use Cake\Notification\NotificationManager;
+use Crustum\Notification\NotificationManager;
 
 NotificationManager::route('telegram', '123456789')
     ->notify(new SystemAlert());
@@ -245,7 +245,7 @@ class UsersTable extends Table
     public function initialize(array $config): void
     {
         parent::initialize($config);
-        $this->addBehavior('Cake/Notification.Notifiable');
+        $this->addBehavior('Crustum/Notification.Notifiable');
     }
 }
 ```
@@ -584,7 +584,7 @@ public function toTelegram(EntityInterface|AnonymousNotifiable $notifiable): mix
 ## Error Handling
 
 ```php
-use Cake\Notification\Exception\CouldNotSendNotification;
+use Crustum\Notification\Exception\CouldNotSendNotification;
 
 try {
     $user->notify(new OrderShippedNotification('12345', 'TRACK123'));
@@ -597,14 +597,14 @@ try {
 
 ## Testing
 
-You may use the `\Cake\Notification\TestSuite\NotificationTrait` to prevent notifications from being sent during testing. After adding the `NotificationTrait` to your test case, you may then assert that notifications were instructed to be sent:
+You may use the `\Crustum\Notification\TestSuite\NotificationTrait` to prevent notifications from being sent during testing. After adding the `NotificationTrait` to your test case, you may then assert that notifications were instructed to be sent:
 
 ```php
 <?php
 namespace App\Test\TestCase;
 
 use App\Notification\OrderShippedNotification;
-use Cake\Notification\TestSuite\NotificationTrait;
+use Crustum\Notification\TestSuite\NotificationTrait;
 use Cake\TestSuite\TestCase;
 
 class OrderTest extends TestCase

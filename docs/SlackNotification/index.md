@@ -19,7 +19,7 @@ The Slack notification channel is included as part of the notification ecosystem
 ### Installation via Composer
 
 ```bash
-composer require skie/notification-slack
+composer require crustum/notification-slack
 ```
 
 <a name="load-plugin"></a>
@@ -32,8 +32,8 @@ public function bootstrap(): void
 {
     parent::bootstrap();
 
-    $this->addPlugin('Cake/Notification');
-    $this->addPlugin('Cake/SlackNotification');
+    $this->addPlugin('Crustum/Notification');
+    $this->addPlugin('Crustum/SlackNotification');
 }
 ```
 
@@ -87,10 +87,10 @@ To send Slack notifications, define a `toSlack()` method on your notification cl
 namespace App\Notification;
 
 use Cake\Datasource\EntityInterface;
-use Cake\Notification\AnonymousNotifiable;
-use Cake\Notification\Notification;
-use Cake\SlackNotification\BlockKit\BlockKitMessage;
-use Cake\SlackNotification\BlockKit\Block\SectionBlock;
+use Crustum\Notification\AnonymousNotifiable;
+use Crustum\Notification\Notification;
+use Crustum\SlackNotification\BlockKit\BlockKitMessage;
+use Crustum\SlackNotification\BlockKit\Block\SectionBlock;
 
 class InvoicePaid extends Notification
 {
@@ -259,7 +259,7 @@ public function toSlack(EntityInterface|AnonymousNotifiable $notifiable): BlockK
 Actions blocks contain interactive elements like buttons:
 
 ```php
-use Cake\SlackNotification\BlockKit\Block\ActionsBlock;
+use Crustum\SlackNotification\BlockKit\Block\ActionsBlock;
 
 public function toSlack(EntityInterface|AnonymousNotifiable $notifiable): BlockKitMessage
 {
@@ -285,7 +285,7 @@ public function toSlack(EntityInterface|AnonymousNotifiable $notifiable): BlockK
 Buttons allow users to take actions directly from Slack:
 
 ```php
-use Cake\SlackNotification\BlockKit\Block\ActionsBlock;
+use Crustum\SlackNotification\BlockKit\Block\ActionsBlock;
 
 public function toSlack(EntityInterface|AnonymousNotifiable $notifiable): BlockKitMessage
 {
@@ -327,8 +327,8 @@ Button styles:
 Add confirmation dialogs to buttons to prevent accidental actions:
 
 ```php
-use Cake\SlackNotification\BlockKit\Block\ActionsBlock;
-use Cake\SlackNotification\BlockKit\Composite\ConfirmObject;
+use Crustum\SlackNotification\BlockKit\Block\ActionsBlock;
+use Crustum\SlackNotification\BlockKit\Composite\ConfirmObject;
 
 public function toSlack(EntityInterface|AnonymousNotifiable $notifiable): BlockKitMessage
 {
@@ -357,8 +357,8 @@ public function toSlack(EntityInterface|AnonymousNotifiable $notifiable): BlockK
 Select menus allow users to choose from a list of options:
 
 ```php
-use Cake\SlackNotification\BlockKit\Block\ActionsBlock;
-use Cake\SlackNotification\BlockKit\Element\Select\SelectOption;
+use Crustum\SlackNotification\BlockKit\Block\ActionsBlock;
+use Crustum\SlackNotification\BlockKit\Element\Select\SelectOption;
 
 public function toSlack(EntityInterface|AnonymousNotifiable $notifiable): BlockKitMessage
 {
@@ -451,7 +451,7 @@ Define a `routeNotificationForSlack()` method on your entity to specify which ch
 <?php
 namespace App\Model\Entity;
 
-use Cake\Notification\Notification;
+use Crustum\Notification\Notification;
 use Cake\ORM\Entity;
 
 class User extends Entity
@@ -459,7 +459,7 @@ class User extends Entity
     /**
      * Route notifications for the Slack channel
      *
-     * @param \Cake\Notification\Notification $notification
+     * @param \Crustum\Notification\Notification $notification
      * @return string|null
      */
     public function routeNotificationForSlack(Notification $notification): ?string
@@ -491,7 +491,7 @@ public function toSlack(EntityInterface|AnonymousNotifiable $notifiable): BlockK
 To send notifications to external Slack workspaces, use `SlackRoute`:
 
 ```php
-use Cake\SlackNotification\BlockKit\SlackRoute;
+use Crustum\SlackNotification\BlockKit\SlackRoute;
 
 public function routeNotificationForSlack(Notification $notification): SlackRoute|string
 {
@@ -545,8 +545,8 @@ When testing Slack notifications, you can use the `NotificationTrait` to capture
 namespace App\Test\TestCase;
 
 use App\Notification\InvoicePaid;
-use Cake\SlackNotification\BlockKit\BlockKitMessage;
-use Cake\Notification\TestSuite\NotificationTrait;
+use Crustum\SlackNotification\BlockKit\BlockKitMessage;
+use Crustum\Notification\TestSuite\NotificationTrait;
 use Cake\TestSuite\TestCase;
 
 class SlackNotificationTest extends TestCase

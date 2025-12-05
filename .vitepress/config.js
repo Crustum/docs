@@ -6,10 +6,10 @@ import { mermaidPlugin } from './plugins/mermaid-simple.js'
 export default defineConfig({
     srcDir: 'docs',
     // base: '/docs-test/', // Set to your repository name for GitHub Pages
-    base: '/docs/', // Set to your repository name for GitHub Pages
-    // base: '/', // Set to your repository name for GitHub Pages
-    title: 'Evgeny Tomenko - CakePHP Plugins',
-    description: 'Professional CakePHP plugins by Evgeny Tomenko',
+    // base: '/docs/', // Set to your repository name for GitHub Pages
+    base: '/', // Set to your repository name for GitHub Pages
+    title: 'Crustum CakePHP Plugins',
+    description: 'Modern CakePHP plugins',
     ignoreDeadLinks: true,
     head: [
         ['link', { rel: 'icon', type: 'image/png', href: '/favicon/favicon-96x96.png', sizes: '96x96' }],
@@ -167,7 +167,7 @@ export default defineConfig({
         sidebar: {
             "/": [
                 {
-                    "text": "Evgeny's CakePHP Plugins",
+                    "text": "Crustum CakePHP Plugins",
                     "collapsed": false,
                     "items": [
                         { "text": "Home", "link": "/" }
@@ -210,17 +210,6 @@ export default defineConfig({
                     ]
                 }
             ],
-            "/Rhythm/": [
-                {
-                    "text": "Rhythm Plugin",
-                    "collapsed": false,
-                    "items": [
-                        { "text": "Home", "link": "/Rhythm/" },
-                        { "text": "Rhythm Plugin", "link": "/Rhythm/rhythm" },
-                        { "text": "Configuration", "link": "/Rhythm/configuration" },
-                    ]
-                }
-            ],
             "/RocketChatNotification/": [
                 {
                     "text": "RocketChatNotification",
@@ -230,48 +219,12 @@ export default defineConfig({
                     ]
                 }
             ],
-            "/RuleFlow/": [
-                {
-                    "text": "RuleFlow",
-                    "collapsed": false,
-                    "items": [
-                        { "text": "Home", "link": "/RuleFlow/" },
-                        { "text": "Custom Rules Guide", "link": "/RuleFlow/custom-rules-guide" },
-                        { "text": "JsonLogic Operations Reference", "link": "/RuleFlow/JsonLogic-Operations-Reference" },
-                        { "text": "Regex Compatibility", "link": "/RuleFlow/regex-compatibility" },
-                    ]
-                }
-            ],
-            "/Scheduling/": [
-                {
-                    "text": "Scheduling",
-                    "collapsed": false,
-                    "items": [
-                        { "text": "Home", "link": "/Scheduling/" },
-                        { "text": "Installation", "link": "/Scheduling/Installation" },
-                        { "text": "Integration", "link": "/Scheduling/Integration" },
-                        { "text": "API Reference", "link": "/Scheduling/API-Reference" },
-                    ]
-                }
-            ],
             "/SevenNotification/": [
                 {
                     "text": "SevenNotification",
                     "collapsed": false,
                     "items": [
                         { "text": "Home", "link": "/SevenNotification/" }
-                    ]
-                }
-            ],
-            "/SignalHandler/": [
-                {
-                    "text": "SignalHandler",
-                    "collapsed": false,
-                    "items": [
-                        { "text": "Home", "link": "/SignalHandler/Home" },
-                        { "text": "Installation", "link": "/SignalHandler/Installation" },
-                        { "text": "Integration", "link": "/SignalHandler/Integration" },
-                        { "text": "API Reference", "link": "/SignalHandler/API-Reference" },
                     ]
                 }
             ],
@@ -371,10 +324,6 @@ export default defineConfig({
                     {
                         text: 'Plugins',
                         items: [
-                            { text: 'RuleFlow Plugin', link: '/RuleFlow/' },
-                            { text: 'Scheduling Plugin', link: '/Scheduling/' },
-                            { text: 'SignalHandler Plugin', link: '/SignalHandler/Home' },
-                            { text: 'Rhythm Plugin', link: '/Rhythm/' },
                             { text: 'Notification Plugin', link: '/Notification/' },
                             { text: 'Broadcasting Plugin', link: '/Broadcasting/' },
                             { text: 'BroadcastingNotification', link: '/BroadcastingNotification/' },

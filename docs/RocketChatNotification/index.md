@@ -26,7 +26,7 @@ This channel plugin provides:
 Install the plugin using composer:
 
 ```bash
-composer require skie/notification-rocketchat
+composer require crustum/notification-rocketchat
 ```
 
 ### Load the Plugin
@@ -45,8 +45,8 @@ class Application extends BaseApplication
     {
         parent::bootstrap();
 
-        $this->addPlugin('Cake/Notification');
-        $this->addPlugin('Cake/RocketChatNotification');
+        $this->addPlugin('Crustum/Notification');
+        $this->addPlugin('Crustum/RocketChatNotification');
     }
 }
 ```
@@ -60,7 +60,7 @@ bin/cake console
 ```
 
 ```php
-use Cake\Notification\NotificationManager;
+use Crustum\Notification\NotificationManager;
 
 $registry = NotificationManager::getRegistry();
 $registry->dispatchDiscoveryEvent();
@@ -249,7 +249,7 @@ class UsersTable extends Table
     public function initialize(array $config): void
     {
         parent::initialize($config);
-        $this->addBehavior('Cake/Notification.Notifiable');
+        $this->addBehavior('Crustum/Notification.Notifiable');
     }
 }
 ```
@@ -301,9 +301,9 @@ Create a notification class:
 namespace App\Notification;
 
 use Cake\Datasource\EntityInterface;
-use Cake\Notification\AnonymousNotifiable;
-use Cake\Notification\Notification;
-use Cake\RocketChatNotification\Message\RocketChatMessage;
+use Crustum\Notification\AnonymousNotifiable;
+use Crustum\Notification\Notification;
+use Crustum\RocketChatNotification\Message\RocketChatMessage;
 
 class WelcomeNotification extends Notification
 {
@@ -339,7 +339,7 @@ foreach ($users as $user) {
     $user->notify(new WelcomeNotification());
 }
 
-use Cake\Notification\NotificationManager;
+use Crustum\Notification\NotificationManager;
 
 NotificationManager::send($users, new WelcomeNotification());
 ```
@@ -349,7 +349,7 @@ NotificationManager::send($users, new WelcomeNotification());
 Send to a specific channel without a user entity:
 
 ```php
-use Cake\Notification\NotificationManager;
+use Crustum\Notification\NotificationManager;
 
 NotificationManager::route('rocketchat', '#general')
     ->notify(new SystemAlertNotification());
@@ -598,7 +598,7 @@ The `RocketChatMessage` class provides a fluent API for building rich RocketChat
 #### Creating a Message
 
 ```php
-use Cake\RocketChatNotification\Message\RocketChatMessage;
+use Crustum\RocketChatNotification\Message\RocketChatMessage;
 
 $message = RocketChatMessage::create();
 ```
@@ -957,7 +957,7 @@ Output:
 ## Error Handling
 
 ```php
-use Cake\Notification\Exception\CouldNotSendNotification;
+use Crustum\Notification\Exception\CouldNotSendNotification;
 
 try {
     $user->notify(new WelcomeNotification());
@@ -971,7 +971,7 @@ try {
 <a name="testing"></a>
 ## Testing
 
-You may use the `\Cake\Notification\TestSuite\NotificationTrait` to prevent notifications from being sent during testing. Typically, sending notifications is unrelated to the code you are actually testing. Most likely, it is sufficient to simply assert that your application was instructed to send a given notification.
+You may use the `\Crustum\Notification\TestSuite\NotificationTrait` to prevent notifications from being sent during testing. Typically, sending notifications is unrelated to the code you are actually testing. Most likely, it is sufficient to simply assert that your application was instructed to send a given notification.
 
 After adding the `NotificationTrait` to your test case, you may then assert that notifications were instructed to be sent and even inspect the message content:
 
@@ -980,7 +980,7 @@ After adding the `NotificationTrait` to your test case, you may then assert that
 namespace App\Test\TestCase;
 
 use App\Notification\OrderShippedNotification;
-use Cake\Notification\TestSuite\NotificationTrait;
+use Crustum\Notification\TestSuite\NotificationTrait;
 use Cake\TestSuite\TestCase;
 
 class OrderTest extends TestCase

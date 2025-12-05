@@ -24,7 +24,7 @@ The Seven.io SMS Notification Channel allows you to send SMS notifications via [
 ### Installation via Composer
 
 ```bash
-composer require skie/notification-seven
+composer require crustum/notification-seven
 ```
 
 ### Load Plugin
@@ -36,8 +36,8 @@ public function bootstrap(): void
 {
     parent::bootstrap();
 
-    $this->addPlugin('Cake/Notification');
-    $this->addPlugin('Cake/SevenNotification');
+    $this->addPlugin('Crustum/Notification');
+    $this->addPlugin('Crustum/SevenNotification');
 }
 ```
 
@@ -83,9 +83,9 @@ SEVEN_API_KEY=your-api-key-here
 namespace App\Notification;
 
 use Cake\Datasource\EntityInterface;
-use Cake\Notification\AnonymousNotifiable;
-use Cake\Notification\Notification;
-use Cake\SevenNotification\Message\SevenMessage;
+use Crustum\Notification\AnonymousNotifiable;
+use Crustum\Notification\Notification;
+use Crustum\SevenNotification\Message\SevenMessage;
 
 class OrderConfirmationNotification extends Notification
 {
@@ -114,7 +114,7 @@ class OrderConfirmationNotification extends Notification
 $user = $this->Users->get($userId);
 $user->notify(new OrderConfirmationNotification('12345', 99.99));
 
-use Cake\Notification\NotificationManager;
+use Crustum\Notification\NotificationManager;
 
 NotificationManager::route('seven', '+491234567890')
     ->notify(new OrderConfirmationNotification('12345', 99.99));
@@ -245,7 +245,7 @@ Seven.io accepts various formats, but E.164 is recommended:
 ## Error Handling
 
 ```php
-use Cake\Notification\Exception\CouldNotSendNotification;
+use Crustum\Notification\Exception\CouldNotSendNotification;
 
 try {
     $user->notify(new OrderConfirmationNotification('12345', 99.99));

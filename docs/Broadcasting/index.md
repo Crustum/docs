@@ -29,7 +29,7 @@ public function bootstrap(): void
 {
     parent::bootstrap();
 
-    $this->addPlugin('Cake/Broadcasting');
+    $this->addPlugin('Crustum/Broadcasting');
 }
 ```
 
@@ -43,7 +43,7 @@ All of your application's event broadcasting configuration is stored in the `con
 return [
     'Broadcasting' => [
         'default' => [
-            'className' => 'Cake/Broadcasting.Pusher',
+            'className' => 'Crustum/Broadcasting.Pusher',
             'key' => env('PUSHER_APP_KEY'),
             'secret' => env('PUSHER_APP_SECRET'),
             'app_id' => env('PUSHER_APP_ID'),
@@ -53,7 +53,7 @@ return [
             ],
         ],
         'redis' => [
-            'className' => 'Cake/Broadcasting.Redis',
+            'className' => 'Crustum/Broadcasting.Redis',
             'connection' => 'default',
             'redis' => [
                 'host' => '127.0.0.1',
@@ -63,10 +63,10 @@ return [
             ],
         ],
         'log' => [
-            'className' => 'Cake/Broadcasting.Log',
+            'className' => 'Crustum/Broadcasting.Log',
         ],
         'null' => [
-            'className' => 'Cake/Broadcasting.Null',
+            'className' => 'Crustum/Broadcasting.Null',
         ],
     ],
 ];
@@ -108,7 +108,7 @@ The `config/broadcasting.php` file's `pusher` configuration also allows you to s
 
 ```php
 'default' => [
-    'className' => 'Cake/Broadcasting.Pusher',
+    'className' => 'Crustum/Broadcasting.Pusher',
     'key' => env('PUSHER_APP_KEY'),
     'secret' => env('PUSHER_APP_SECRET'),
     'app_id' => env('PUSHER_APP_ID'),
@@ -207,7 +207,7 @@ Before diving into each component of event broadcasting, let's take a high level
 In our application, let's assume we have a page that allows users to view the shipping status for their orders. Let's also assume that an `OrderShipmentStatusUpdated` event is fired when a shipping status update is processed by the application:
 
 ```php
-use Cake\Broadcasting\Broadcasting;
+use Crustum\Broadcasting\Broadcasting;
 
 // Broadcast the event
 Broadcasting::to('orders.' . $order->id)
@@ -227,9 +227,9 @@ declare(strict_types=1);
 
 namespace App\Event;
 
-use Cake\Broadcasting\Channel\Channel;
-use Cake\Broadcasting\Channel\PrivateChannel;
-use Cake\Broadcasting\Event\BroadcastableInterface;
+use Crustum\Broadcasting\Channel\Channel;
+use Crustum\Broadcasting\Channel\PrivateChannel;
+use Crustum\Broadcasting\Event\BroadcastableInterface;
 
 class OrderShipmentStatusUpdated implements BroadcastableInterface
 {
@@ -288,7 +288,7 @@ public function broadcastChannel(): array
 Remember, users must be authorized to listen on private channels. We may define our channel authorization rules in our application's `config/channels.php` file. In this example, we need to verify that any user attempting to listen on the private `orders.1` channel is actually the creator of the order:
 
 ```php
-use Cake\Broadcasting\Broadcasting;
+use Crustum\Broadcasting\Broadcasting;
 use Cake\ORM\TableRegistry;
 
 Broadcasting::channel('private-orders.{orderId}', function ($user, $orderId) {
@@ -322,7 +322,7 @@ Echo.private(`orders.${orderId}`)
 <a name="defining-broadcast-events"></a>
 ## Defining Broadcast Events
 
-To inform CakePHP that a given event should be broadcast, you must implement the `Cake\Broadcasting\Event\BroadcastableInterface` interface on the event class. This interface requires you to implement several methods that define how the event should be broadcast.
+To inform CakePHP that a given event should be broadcast, you must implement the `Crustum\Broadcasting\Event\BroadcastableInterface` interface on the event class. This interface requires you to implement several methods that define how the event should be broadcast.
 
 Here's a minimal working example:
 
@@ -332,9 +332,9 @@ declare(strict_types=1);
 
 namespace App\Event;
 
-use Cake\Broadcasting\Channel\Channel;
-use Cake\Broadcasting\Channel\PrivateChannel;
-use Cake\Broadcasting\Event\BroadcastableInterface;
+use Crustum\Broadcasting\Channel\Channel;
+use Crustum\Broadcasting\Channel\PrivateChannel;
+use Crustum\Broadcasting\Event\BroadcastableInterface;
 
 class ServerCreated implements BroadcastableInterface
 {
@@ -369,7 +369,7 @@ class ServerCreated implements BroadcastableInterface
 After implementing the `BroadcastableInterface` interface, you only need to fire the event using the `broadcast` helper function. The Broadcasting system will automatically extract the required data using only the core methods (`broadcastChannel()`, `broadcastEvent()`, `broadcastData()`, and `broadcastSocket()`) and queue the event for broadcasting:
 
 ```php
-use function Cake\Broadcasting\broadcast;
+use function Crustum\Broadcasting\broadcast;
 
 broadcast(new ServerCreated($user));
 ```
@@ -415,7 +415,7 @@ public function broadcastData(): ?array
 By default, each broadcast event is placed on the default queue using the CakePHP Queue plugin. The Broadcasting plugin integrates with CakePHP Queue to handle async broadcasting. You may customize the queue by implementing the `QueueableInterface` on your event class:
 
 ```php
-use Cake\Broadcasting\Event\QueueableInterface;
+use Crustum\Broadcasting\Event\QueueableInterface;
 
 class ServerCreated implements BroadcastableInterface, QueueableInterface
 {
@@ -447,7 +447,7 @@ class ServerCreated implements BroadcastableInterface, QueueableInterface
 Sometimes you want to broadcast your event only if a given condition is true. You may define these conditions by implementing the `ConditionalInterface` on your event class:
 
 ```php
-use Cake\Broadcasting\Event\ConditionalInterface;
+use Crustum\Broadcasting\Event\ConditionalInterface;
 
 class OrderUpdated implements BroadcastableInterface, ConditionalInterface
 {
@@ -496,7 +496,7 @@ return [
             'driver' => 'pusher',
         ],
     ],
-    'queue_adapter' => \Cake\Broadcasting\Queue\CakeQueueAdapter::class,
+    'queue_adapter' => \Crustum\Broadcasting\Queue\CakeQueueAdapter::class,
 ];
 ```
 
@@ -513,7 +513,7 @@ Fortunately, CakePHP makes it easy to define the routes to respond to channel au
 #### Using Closures
 
 ```php
-use Cake\Broadcasting\Broadcasting;
+use Crustum\Broadcasting\Broadcasting;
 
 Broadcasting::channel('private-orders.{orderId}', function ($user, $orderId) {
     return $user->id === $ordersTable->get($orderId)->user_id;
@@ -538,7 +538,7 @@ This creates a channel class implementing `ChannelInterface`:
 <?php
 namespace App\Broadcasting;
 
-use Cake\Broadcasting\Channel\ChannelInterface;
+use Crustum\Broadcasting\Channel\ChannelInterface;
 use Cake\Datasource\EntityInterface;
 
 class OrderChannel implements ChannelInterface
@@ -558,7 +558,7 @@ Register the channel class in `config/channels.php`:
 
 ```php
 use App\Broadcasting\OrderChannel;
-use Cake\Broadcasting\Broadcasting;
+use Crustum\Broadcasting\Broadcasting;
 
 Broadcasting::channel('private-orders.{order}', OrderChannel::class);
 ```
@@ -602,7 +602,7 @@ The Broadcasting plugin provides a `BroadcastingAuthController` that handles the
 Once you have defined an event and marked it with the `BroadcastableInterface` interface, you only need to fire the event using the `broadcast` helper function. The event dispatcher will notice that the event is marked with the `BroadcastableInterface` interface and will queue the event for broadcasting:
 
 ```php
-use function Cake\Broadcasting\broadcast;
+use function Crustum\Broadcasting\broadcast;
 
 broadcast(new OrderShipmentStatusUpdated($order));
 ```
@@ -613,7 +613,7 @@ broadcast(new OrderShipmentStatusUpdated($order));
 When building an application that utilizes event broadcasting, you may occasionally need to broadcast an event to all subscribers to a given channel except for the current user. You may accomplish this using the `Broadcasting` facade and the `toOthers` method:
 
 ```php
-use Cake\Broadcasting\Broadcasting;
+use Crustum\Broadcasting\Broadcasting;
 
 Broadcasting::to('orders.' . $order->id)
     ->event('OrderShipmentStatusUpdated')
@@ -650,7 +650,7 @@ var socketId = Echo.socketId();
 If your application interacts with multiple broadcast connections and you want to broadcast an event using a broadcaster other than your default, you may specify which connection to push an event to using the `via` method:
 
 ```php
-use Cake\Broadcasting\Broadcasting;
+use Crustum\Broadcasting\Broadcasting;
 
 Broadcasting::to('orders.' . $order->id)
     ->event('OrderShipmentStatusUpdated')
@@ -665,7 +665,7 @@ Broadcasting::to('orders.' . $order->id)
 Sometimes, you may want to broadcast a simple event to your application's frontend without creating a dedicated event class. To accommodate this, the `Broadcasting` facade allows you to broadcast "anonymous events":
 
 ```php
-use Cake\Broadcasting\Broadcasting;
+use Crustum\Broadcasting\Broadcasting;
 
 Broadcasting::to('orders.' . $order->id)
     ->event('OrderPlaced')
@@ -686,7 +686,7 @@ The example above will broadcast an event like the following:
 If you would like to broadcast the anonymous event on a private or presence channel, you may utilize the `private` and `presence` methods:
 
 ```php
-use Cake\Broadcasting\Broadcasting;
+use Crustum\Broadcasting\Broadcasting;
 
 Broadcasting::private('orders.' . $order->id)
     ->event('OrderPlaced')
@@ -702,7 +702,7 @@ Broadcasting::presence('channels.' . $channel->id)
 Broadcasting an anonymous event using the `send` method dispatches the event to your application's queue for processing. However, if you would like to broadcast the event immediately, you may use the `sendNow` method:
 
 ```php
-use Cake\Broadcasting\Broadcasting;
+use Crustum\Broadcasting\Broadcasting;
 
 Broadcasting::to('orders.' . $order->id)
     ->event('OrderPlaced')
@@ -713,7 +713,7 @@ Broadcasting::to('orders.' . $order->id)
 To broadcast the event to all channel subscribers except the currently authenticated user, you can invoke the `toOthers` method:
 
 ```php
-use Cake\Broadcasting\Broadcasting;
+use Crustum\Broadcasting\Broadcasting;
 
 Broadcasting::to('orders.' . $order->id)
     ->event('OrderPlaced')
@@ -970,7 +970,7 @@ All presence channels are also private channels; therefore, users must be [autho
 The data returned by the authorization callback will be made available to the presence channel event listeners in your JavaScript application. If the user is not authorized to join the presence channel, you should return `false` or `null`:
 
 ```php
-use Cake\Broadcasting\Broadcasting;
+use Crustum\Broadcasting\Broadcasting;
 
 Broadcasting::channel('presence-chat.{roomId}', function ($user, $roomId) {
     if ($user->canJoinRoom($roomId)) {
@@ -1008,7 +1008,7 @@ The `here` callback will be executed immediately once the channel is joined succ
 Presence channels may receive events just like public or private channels. Using the example of a chatroom, we may want to broadcast `NewMessage` events to the room's presence channel. To do so, we'll return an instance of `PresenceChannel` from the event's `broadcastChannel` method:
 
 ```php
-use Cake\Broadcasting\Channel\PresenceChannel;
+use Crustum\Broadcasting\Channel\PresenceChannel;
 
 public function broadcastChannel(): array
 {
@@ -1021,7 +1021,7 @@ public function broadcastChannel(): array
 As with other events, you may use the `Broadcasting` facade and the `toOthers` method to exclude the current user from receiving the broadcast:
 
 ```php
-use Cake\Broadcasting\Broadcasting;
+use Crustum\Broadcasting\Broadcasting;
 
 Broadcasting::presence('chat.' . $message->room_id)
     ->event('NewMessage')
@@ -1239,7 +1239,7 @@ In this example, all notifications sent to `App\Model\Entity\User` instances via
 <a name="testing"></a>
 ## Testing
 
-You may use the `\Cake\Broadcasting\TestSuite\BroadcastingTrait` to prevent broadcasts from being sent during testing. Typically, sending broadcasts is unrelated to the code you are actually testing. Most likely, it is sufficient to simply assert that your application was instructed to broadcast a given event.
+You may use the `\Crustum\Broadcasting\TestSuite\BroadcastingTrait` to prevent broadcasts from being sent during testing. Typically, sending broadcasts is unrelated to the code you are actually testing. Most likely, it is sufficient to simply assert that your application was instructed to broadcast a given event.
 
 After adding the `BroadcastingTrait` to your test case, you may then assert that broadcasts were sent to channels and even inspect the data the broadcasts received:
 
@@ -1247,8 +1247,8 @@ After adding the `BroadcastingTrait` to your test case, you may then assert that
 <?php
 namespace App\Test\TestCase;
 
-use Cake\Broadcasting\Broadcasting;
-use Cake\Broadcasting\TestSuite\BroadcastingTrait;
+use Crustum\Broadcasting\Broadcasting;
+use Crustum\Broadcasting\TestSuite\BroadcastingTrait;
 use Cake\TestSuite\TestCase;
 
 class OrderTest extends TestCase
@@ -1491,7 +1491,7 @@ You can assert that broadcasts were sent via specific broadcasting connections:
 public function testBroadcastViaConnection(): void
 {
     Broadcasting::setConfig('pusher', [
-        'className' => \Cake\Broadcasting\TestSuite\TestBroadcaster::class,
+        'className' => \Crustum\Broadcasting\TestSuite\TestBroadcaster::class,
         'connectionName' => 'pusher',
     ]);
     Broadcasting::getRegistry()->reset();
@@ -1511,7 +1511,7 @@ Filter broadcasts by connection:
 public function testMultipleConnections(): void
 {
     Broadcasting::setConfig('redis', [
-        'className' => \Cake\Broadcasting\TestSuite\TestBroadcaster::class,
+        'className' => \Crustum\Broadcasting\TestSuite\TestBroadcaster::class,
         'connectionName' => 'redis',
     ]);
     Broadcasting::getRegistry()->reset();
@@ -1555,7 +1555,7 @@ public function testBroadcastExcludesSocket(): void
 When testing models that use the `BroadcastingBehavior`, you can verify broadcasts are sent automatically:
 
 ```php
-use Cake\Broadcasting\TestSuite\BroadcastingTrait;
+use Crustum\Broadcasting\TestSuite\BroadcastingTrait;
 use Cake\TestSuite\TestCase;
 
 class PostTest extends TestCase

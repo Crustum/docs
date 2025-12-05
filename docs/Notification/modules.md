@@ -9,13 +9,13 @@
 The `broadcast` notification channel sends notifications via WebSocket for real-time delivery. Before you can send notifications via broadcast, you need to install the broadcasting notification plugin:
 
 ```shell
-composer require skie/broadcasting-notification
+composer require crustum/broadcasting-notification
 ```
 
 Load the plugin in your `Application.php`:
 
 ```php
-$this->addPlugin('Cake/BroadcastingNotification');
+$this->addPlugin('Crustum/BroadcastingNotification');
 ```
 
 Configure your WebSocket server in `config/broadcasting.php`. The plugin supports Pusher-compatible WebSocket servers.
@@ -31,7 +31,7 @@ If a notification supports being broadcast, you should define a `toBroadcast()` 
 /**
  * Get the broadcast representation of the notification.
  *
- * @param \Cake\Datasource\EntityInterface|\Cake\Notification\AnonymousNotifiable $notifiable
+ * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
  * @return array<string, mixed>
  */
 public function toBroadcast(EntityInterface|AnonymousNotifiable $notifiable): array
@@ -47,14 +47,14 @@ public function toBroadcast(EntityInterface|AnonymousNotifiable $notifiable): ar
 **Using BroadcastMessage (Fluent API):**
 
 ```php
-use Cake\BroadcastingNotification\Message\BroadcastMessage;
-use Cake\Notification\Message\Action;
+use Crustum\BroadcastingNotification\Message\BroadcastMessage;
+use Crustum\Notification\Message\Action;
 
 /**
  * Get the broadcast representation of the notification.
  *
- * @param \Cake\Datasource\EntityInterface|\Cake\Notification\AnonymousNotifiable $notifiable
- * @return \Cake\BroadcastingNotification\Message\BroadcastMessage
+ * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
+ * @return \Crustum\BroadcastingNotification\Message\BroadcastMessage
  */
 public function toBroadcast(EntityInterface|AnonymousNotifiable $notifiable): BroadcastMessage
 {
@@ -93,7 +93,7 @@ public function toBroadcast(EntityInterface|AnonymousNotifiable $notifiable): Br
 By default, notifications are broadcast to a private channel named after the notifiable entity (e.g., `App.Model.Entity.User.123`). You can customize the channel by defining a `broadcastOn()` method on your notification:
 
 ```php
-use Cake\Broadcasting\Channel\PrivateChannel;
+use Crustum\Broadcasting\Channel\PrivateChannel;
 
 /**
  * Get the channels the event should broadcast on.
@@ -148,7 +148,7 @@ The broadcast event contains all data returned from your `toBroadcast()` method,
 The `slack` notification channel sends notifications to Slack channels via incoming webhooks. Before you can send notifications via Slack, you need to install the Slack notification plugin:
 
 ```shell
-composer require skie/notification-slack
+composer require crustum/notification-slack
 ```
 
 Load the plugin in your `Application.php`:
@@ -174,7 +174,7 @@ use Cake\SlackNotification\BlockKit\BlockKitMessage;
 /**
  * Get the Slack representation of the notification.
  *
- * @param \Cake\Datasource\EntityInterface|\Cake\Notification\AnonymousNotifiable $notifiable
+ * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
  * @return \Cake\SlackNotification\BlockKit\BlockKitMessage
  */
 public function toSlack(EntityInterface|AnonymousNotifiable $notifiable): BlockKitMessage
@@ -215,7 +215,7 @@ use Cake\SlackNotification\Message\SlackMessage;
 /**
  * Get the Slack representation of the notification.
  *
- * @param \Cake\Datasource\EntityInterface|\Cake\Notification\AnonymousNotifiable $notifiable
+ * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
  * @return \Cake\SlackNotification\Message\SlackMessage
  */
 public function toSlack(EntityInterface|AnonymousNotifiable $notifiable): SlackMessage
@@ -236,7 +236,7 @@ use Cake\SlackNotification\Message\SlackMessage;
 /**
  * Get the Slack representation of the notification.
  *
- * @param \Cake\Datasource\EntityInterface|\Cake\Notification\AnonymousNotifiable $notifiable
+ * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
  * @return \Cake\SlackNotification\Message\SlackMessage
  */
 public function toSlack(EntityInterface|AnonymousNotifiable $notifiable): SlackMessage
@@ -285,7 +285,7 @@ To route Slack notifications to the proper webhook URL or channel, define a `rou
 <?php
 namespace App\Model\Entity;
 
-use Cake\Notification\Notification;
+use Crustum\Notification\Notification;
 use Cake\ORM\Entity;
 
 class User extends Entity
@@ -293,7 +293,7 @@ class User extends Entity
     /**
      * Route notifications for the Slack channel.
      *
-     * @param \Cake\Notification\Notification $notification
+     * @param \Crustum\Notification\Notification $notification
      * @return string
      */
     public function routeNotificationForSlack(Notification $notification): string
@@ -321,21 +321,21 @@ public function routeNotificationForSlack(Notification $notification): string|ar
 <a name="sms-prerequisites"></a>
 ### Prerequisites
 
-Sending SMS notifications with CakePHP Notification Plugin is powered by Seven.io. Before you can send notifications via Seven, you need to install the `skie/notification-seven` package and configure your Seven.io API credentials.
+Sending SMS notifications with CakePHP Notification Plugin is powered by Seven.io. Before you can send notifications via Seven, you need to install the `crustum/notification-seven` package and configure your Seven.io API credentials.
 
 <a name="formatting-sms-notifications"></a>
 ### Formatting SMS Notifications
 
-If a notification supports being sent as an SMS, you should define a `toSeven()` method on the notification class. This method will receive a `$notifiable` entity and should return a `Cake\Notification\Seven\Message\SevenMessage` instance:
+If a notification supports being sent as an SMS, you should define a `toSeven()` method on the notification class. This method will receive a `$notifiable` entity and should return a `Crustum\Notification\Seven\Message\SevenMessage` instance:
 
 ```php
-use Cake\Notification\Seven\Message\SevenMessage;
+use Crustum\Notification\Seven\Message\SevenMessage;
 
 /**
  * Get the Seven / SMS representation of the notification.
  *
- * @param \Cake\Datasource\EntityInterface|\Cake\Notification\AnonymousNotifiable $notifiable
- * @return \Cake\Notification\Seven\Message\SevenMessage
+ * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
+ * @return \Crustum\Notification\Seven\Message\SevenMessage
  */
 public function toSeven(EntityInterface|AnonymousNotifiable $notifiable): SevenMessage
 {
@@ -349,7 +349,7 @@ public function toSeven(EntityInterface|AnonymousNotifiable $notifiable): SevenM
 If you would like to customize the sender name or number, you may use the `from()` method on a `SevenMessage` instance:
 
 ```php
-use Cake\Notification\Seven\Message\SevenMessage;
+use Crustum\Notification\Seven\Message\SevenMessage;
 
 /**
  * Get the Seven / SMS representation of the notification.
@@ -370,7 +370,7 @@ To route Seven notifications to the proper phone number, define a `routeNotifica
 <?php
 namespace App\Model\Entity;
 
-use Cake\Notification\Notification;
+use Crustum\Notification\Notification;
 use Cake\ORM\Entity;
 
 class User extends Entity
@@ -378,7 +378,7 @@ class User extends Entity
     /**
      * Route notifications for the Seven channel.
      *
-     * @param \Cake\Notification\Notification $notification
+     * @param \Crustum\Notification\Notification $notification
      * @return string
      */
     public function routeNotificationForSeven(Notification $notification): string
@@ -399,17 +399,17 @@ Before sending Telegram notifications, you should install the Telegram notificat
 <a name="formatting-telegram-notifications"></a>
 ### Formatting Telegram Notifications
 
-If a notification supports being sent to Telegram, you should define a `toTelegram()` method on the notification class. This method will receive a `$notifiable` entity and should return a `Cake\Notification\Telegram\Message\TelegramMessage` instance:
+If a notification supports being sent to Telegram, you should define a `toTelegram()` method on the notification class. This method will receive a `$notifiable` entity and should return a `Crustum\Notification\Telegram\Message\TelegramMessage` instance:
 
 ```php
-use Cake\Notification\Telegram\Enum\ParseMode;
-use Cake\Notification\Telegram\Message\TelegramMessage;
+use Crustum\Notification\Telegram\Enum\ParseMode;
+use Crustum\Notification\Telegram\Message\TelegramMessage;
 
 /**
  * Get the Telegram representation of the notification.
  *
- * @param \Cake\Datasource\EntityInterface|\Cake\Notification\AnonymousNotifiable $notifiable
- * @return \Cake\Notification\Telegram\Message\TelegramMessage
+ * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
+ * @return \Crustum\Notification\Telegram\Message\TelegramMessage
  */
 public function toTelegram(EntityInterface|AnonymousNotifiable $notifiable): TelegramMessage
 {
@@ -426,8 +426,8 @@ public function toTelegram(EntityInterface|AnonymousNotifiable $notifiable): Tel
 Telegram supports sending various types of media along with messages:
 
 ```php
-use Cake\Notification\Telegram\Message\TelegramFile;
-use Cake\Notification\Telegram\Message\TelegramMessage;
+use Crustum\Notification\Telegram\Message\TelegramFile;
+use Crustum\Notification\Telegram\Message\TelegramMessage;
 
 public function toTelegram(EntityInterface|AnonymousNotifiable $notifiable): TelegramMessage|TelegramFile
 {
@@ -450,7 +450,7 @@ To route Telegram notifications to the proper chat, define a `routeNotificationF
 <?php
 namespace App\Model\Entity;
 
-use Cake\Notification\Notification;
+use Crustum\Notification\Notification;
 use Cake\ORM\Entity;
 
 class User extends Entity
@@ -458,7 +458,7 @@ class User extends Entity
     /**
      * Route notifications for the Telegram channel.
      *
-     * @param \Cake\Notification\Notification $notification
+     * @param \Crustum\Notification\Notification $notification
      * @return string
      */
     public function routeNotificationForTelegram(Notification $notification): string
@@ -479,17 +479,17 @@ Before sending RocketChat notifications, you should install the RocketChat notif
 <a name="formatting-rocketchat-notifications"></a>
 ### Formatting RocketChat Notifications
 
-If a notification supports being sent to RocketChat, you should define a `toRocketchat()` method on the notification class. This method will receive a `$notifiable` entity and should return a `Cake\Notification\RocketChat\Message\RocketChatMessage` instance:
+If a notification supports being sent to RocketChat, you should define a `toRocketchat()` method on the notification class. This method will receive a `$notifiable` entity and should return a `Crustum\Notification\RocketChat\Message\RocketChatMessage` instance:
 
 ```php
-use Cake\Notification\RocketChat\Message\RocketChatAttachment;
-use Cake\Notification\RocketChat\Message\RocketChatMessage;
+use Crustum\Notification\RocketChat\Message\RocketChatAttachment;
+use Crustum\Notification\RocketChat\Message\RocketChatMessage;
 
 /**
  * Get the RocketChat representation of the notification.
  *
- * @param \Cake\Datasource\EntityInterface|\Cake\Notification\AnonymousNotifiable $notifiable
- * @return \Cake\Notification\RocketChat\Message\RocketChatMessage
+ * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
+ * @return \Crustum\Notification\RocketChat\Message\RocketChatMessage
  */
 public function toRocketchat(EntityInterface|AnonymousNotifiable $notifiable): RocketChatMessage
 {
@@ -515,7 +515,7 @@ To route RocketChat notifications to the proper webhook, define a `routeNotifica
 <?php
 namespace App\Model\Entity;
 
-use Cake\Notification\Notification;
+use Crustum\Notification\Notification;
 use Cake\ORM\Entity;
 
 class User extends Entity
@@ -523,7 +523,7 @@ class User extends Entity
     /**
      * Route notifications for the RocketChat channel.
      *
-     * @param \Cake\Notification\Notification $notification
+     * @param \Crustum\Notification\Notification $notification
      * @return string
      */
     public function routeNotificationForRocketchat(Notification $notification): string
@@ -544,16 +544,16 @@ The webhook notification channel allows you to send notifications to arbitrary H
 <a name="formatting-webhook-notifications"></a>
 ### Formatting Webhook Notifications
 
-If a notification supports being sent to a webhook, you should define a `toWebhook()` method on the notification class. This method will receive a `$notifiable` entity and should return a `Cake\Notification\Webhook\Message\WebhookMessage` instance:
+If a notification supports being sent to a webhook, you should define a `toWebhook()` method on the notification class. This method will receive a `$notifiable` entity and should return a `Crustum\Notification\Webhook\Message\WebhookMessage` instance:
 
 ```php
-use Cake\Notification\Webhook\Message\WebhookMessage;
+use Crustum\Notification\Webhook\Message\WebhookMessage;
 
 /**
  * Get the webhook representation of the notification.
  *
- * @param \Cake\Datasource\EntityInterface|\Cake\Notification\AnonymousNotifiable $notifiable
- * @return \Cake\Notification\Webhook\Message\WebhookMessage
+ * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
+ * @return \Crustum\Notification\Webhook\Message\WebhookMessage
  */
 public function toWebhook(EntityInterface|AnonymousNotifiable $notifiable): WebhookMessage
 {
@@ -588,7 +588,7 @@ To route webhook notifications to the proper URL, define a `routeNotificationFor
 <?php
 namespace App\Model\Entity;
 
-use Cake\Notification\Notification;
+use Crustum\Notification\Notification;
 use Cake\ORM\Entity;
 
 class User extends Entity
@@ -596,7 +596,7 @@ class User extends Entity
     /**
      * Route notifications for the Webhook channel.
      *
-     * @param \Cake\Notification\Notification $notification
+     * @param \Crustum\Notification\Notification $notification
      * @return string
      */
     public function routeNotificationForWebhook(Notification $notification): string

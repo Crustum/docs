@@ -21,17 +21,17 @@ The plugin provides a modern notification bell widget with dropdown or side pane
 In `config/plugins.php`:
 
 ```php
-'Cake/Notification' => [
+'Crustum/Notification' => [
     'bootstrap' => true,
     'routes' => true,
 ],
-'Cake/NotificationUI' => [],
+'Crustum/NotificationUI' => [],
 ```
 
 ### Run Migrations
 
 ```bash
-bin/cake migrations migrate -p Cake/Notification
+bin/cake migrations migrate -p Crustum/Notification
 ```
 
 ### Add to Layout
@@ -46,7 +46,7 @@ Add notification bell to your navigation:
 
 ```php
 <li class="nav-item">
-    <?= $this->element('Cake/NotificationUI.notifications/bell_icon', [
+    <?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
         'mode' => 'panel',
     ]) ?>
 </li>
@@ -60,13 +60,13 @@ The bell element automatically loads required CSS/JS and initializes the widget.
 Basic usage:
 
 ```php
-<?= $this->element('Cake/NotificationUI.notifications/bell_icon') ?>
+<?= $this->element('Crustum/NotificationUI.notifications/bell_icon') ?>
 ```
 
 With options:
 
 ```php
-<?= $this->element('Cake/NotificationUI.notifications/bell_icon', [
+<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
     'mode' => 'panel',
     'position' => 'left',
     'theme' => 'dark',
@@ -82,7 +82,7 @@ With options:
 Traditional dropdown menu attached to the bell icon:
 
 ```php
-<?= $this->element('Cake/NotificationUI.notifications/bell_icon', [
+<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
     'mode' => 'dropdown',
     'position' => 'right',
 ]) ?>
@@ -93,7 +93,7 @@ Traditional dropdown menu attached to the bell icon:
 Sticky side panel (like Filament Notifications):
 
 ```php
-<?= $this->element('Cake/NotificationUI.notifications/bell_icon', [
+<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
     'mode' => 'panel',
 ]) ?>
 ```
@@ -102,7 +102,7 @@ Sticky side panel (like Filament Notifications):
 ## Configuration Options
 
 ```php
-<?= $this->element('Cake/NotificationUI.notifications/bell_icon', [
+<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
     'mode' => 'panel',
     'position' => 'right',
     'theme' => 'dark',
@@ -130,7 +130,7 @@ Enable WebSocket broadcasting for instant notification delivery:
 ```php
 <?php $authUser = $this->request->getAttribute('identity'); ?>
 
-<?= $this->element('Cake/NotificationUI.notifications/bell_icon', [
+<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
     'mode' => 'panel',
     'enablePolling' => true,
     'broadcasting' => [
@@ -149,7 +149,7 @@ This mode combines database persistence with real-time WebSocket delivery for th
 ### Broadcasting Only (No Database)
 
 ```php
-<?= $this->element('Cake/NotificationUI.notifications/bell_icon', [
+<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
     'enablePolling' => false,
     'broadcasting' => [
         'userId' => $authUser->getIdentifier(),
@@ -243,7 +243,7 @@ window.addEventListener('notification:deleted', (e) => {
 Override PHP templates by creating files in your app's `templates/element/` directory:
 
 ```
-templates/element/Cake/NotificationUI/notifications/
+templates/element/Crustum/NotificationUI/notifications/
   ├── bell_icon.php         # Main bell icon and container
   ├── item.php              # Single notification item
   ├── list.php              # Notification list wrapper
@@ -253,7 +253,7 @@ templates/element/Cake/NotificationUI/notifications/
 Example override:
 
 ```php
-templates/element/Cake/NotificationUI/notifications/item.php
+templates/element/Crustum/NotificationUI/notifications/item.php
 ```
 
 ### JavaScript Template Override

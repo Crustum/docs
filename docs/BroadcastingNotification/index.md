@@ -20,14 +20,14 @@ Broadcasting notifications work seamlessly alongside other notification channels
 ### Installation via Composer
 
 ```bash
-composer require skie/notification-broadcasting
+composer require crustum/notification-broadcasting
 ```
 
 ### Load the Plugin
 
 The plugin is loaded via `config/plugins.php`:
 ```php
-'Cake/BroadcastingNotification' => [],
+'Crustum/BroadcastingNotification' => [],
 ```
 
 <a name="configuration"></a>
@@ -40,7 +40,7 @@ First, configure the Broadcasting plugin in `config/app_local.php`:
 return [
     'Broadcasting' => [
         'default' => [
-            'className' => 'Cake/Broadcasting.Pusher',
+            'className' => 'Crustum/Broadcasting.Pusher',
             'app_id' => env('PUSHER_APP_ID'),
             'key' => env('PUSHER_APP_KEY'),
             'secret' => env('PUSHER_APP_SECRET'),
@@ -71,7 +71,7 @@ The Broadcasting plugin provides a bell element that wraps the base Notification
 ```php
 <?php $authUser = $this->request->getAttribute('identity'); ?>
 <li class="nav-item">
-    <?= $this->element('Cake/NotificationUI.notifications/bell_icon', [
+    <?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
         'mode' => 'panel',
         'enablePolling' => true,
         'pollInterval' => 30000,
@@ -90,7 +90,7 @@ The Broadcasting plugin provides a bell element that wraps the base Notification
 ### Broadcasting Only (No Database)
 
 ```php
-<?= $this->element('Cake/NotificationUI.notifications/bell_icon', [
+<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
     'mode' => 'panel',
     'enablePolling' => false,
     'broadcasting' => [
@@ -157,12 +157,12 @@ The simplest way to make a notification broadcastable is to use the `Broadcastab
 <?php
 namespace App\Notification;
 
-use Cake\Broadcasting\Channel\Channel;
-use Cake\Broadcasting\Channel\PrivateChannel;
+use Crustum\Broadcasting\Channel\Channel;
+use Crustum\Broadcasting\Channel\PrivateChannel;
 use Cake\Datasource\EntityInterface;
-use Cake\Notification\AnonymousNotifiable;
-use Cake\BroadcastingNotification\Trait\BroadcastableNotificationTrait;
-use Cake\Notification\Notification;
+use Crustum\Notification\AnonymousNotifiable;
+use Crustum\BroadcastingNotification\Trait\BroadcastableNotificationTrait;
+use Crustum\Notification\Notification;
 
 class OrderShipped extends Notification
 {
@@ -212,7 +212,7 @@ class OrderShipped extends Notification
 For more control over the broadcast, you can return a `BroadcastMessage` instance from your `toBroadcast()` method:
 
 ```php
-use Cake\BroadcastingNotification\Message\BroadcastMessage;
+use Crustum\BroadcastingNotification\Message\BroadcastMessage;
 
 /**
  * Get the broadcast representation of the notification
@@ -254,7 +254,7 @@ public function toBroadcast(EntityInterface|AnonymousNotifiable $notifiable): Br
 Private channels are the most common type of channel for broadcasting notifications. They ensure that only authorized users can listen to broadcasts on the channel.
 
 ```php
-use Cake\Broadcasting\Channel\PrivateChannel;
+use Crustum\Broadcasting\Channel\PrivateChannel;
 
 public function broadcastOn(): array
 {
@@ -274,7 +274,7 @@ You can customize the channel by overriding the `broadcastOn()` method as shown 
 Public channels allow anyone to listen to broadcasts without authentication:
 
 ```php
-use Cake\Broadcasting\Channel\Channel;
+use Crustum\Broadcasting\Channel\Channel;
 
 public function broadcastOn(): array
 {
@@ -292,7 +292,7 @@ Use public channels sparingly and never broadcast sensitive information on them.
 Presence channels are special private channels that track who is subscribed:
 
 ```php
-use Cake\Broadcasting\Channel\PresenceChannel;
+use Crustum\Broadcasting\Channel\PresenceChannel;
 
 public function broadcastOn(): array
 {
@@ -474,14 +474,14 @@ Broadcasting works seamlessly with other notification channels. You can send a n
 <?php
 namespace App\Notification;
 
-use Cake\Broadcasting\Channel\PrivateChannel;
+use Crustum\Broadcasting\Channel\PrivateChannel;
 use Cake\Datasource\EntityInterface;
-use Cake\Notification\AnonymousNotifiable;
-use Cake\BroadcastingNotification\Trait\BroadcastableNotificationTrait;
-use Cake\Notification\Message\DatabaseMessage;
-use Cake\Notification\Message\MailMessage;
-use Cake\Notification\Notification;
-use Cake\Notification\ShouldQueueInterface;
+use Crustum\Notification\AnonymousNotifiable;
+use Crustum\BroadcastingNotification\Trait\BroadcastableNotificationTrait;
+use Crustum\Notification\Message\DatabaseMessage;
+use Crustum\Notification\Message\MailMessage;
+use Crustum\Notification\Notification;
+use Crustum\Notification\ShouldQueueInterface;
 
 class OrderShipped extends Notification implements ShouldQueueInterface
 {
@@ -577,7 +577,7 @@ When testing broadcast notifications, you can use the `NotificationTrait` to cap
 namespace App\Test\TestCase;
 
 use App\Notification\OrderShipped;
-use Cake\Notification\TestSuite\NotificationTrait;
+use Crustum\Notification\TestSuite\NotificationTrait;
 use Cake\TestSuite\TestCase;
 
 class BroadcastNotificationTest extends TestCase
@@ -630,7 +630,7 @@ class BroadcastNotificationTest extends TestCase
 
         $this->assertNotEmpty($channels);
         $this->assertInstanceOf(
-            'Cake\Broadcasting\Channel\PrivateChannel',
+            'Crustum\Broadcasting\Channel\PrivateChannel',
             $channels[0]
         );
     }

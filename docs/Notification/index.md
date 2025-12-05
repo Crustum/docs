@@ -46,7 +46,7 @@ class UsersTable extends Table
     {
         parent::initialize($config);
 
-        $this->addBehavior('Cake/Notification.Notifiable');
+        $this->addBehavior('Crustum/Notification.Notifiable');
     }
 }
 ```
@@ -70,7 +70,7 @@ $usersTable->notify($user, new InvoicePaid($invoice));
 Alternatively, you may send notifications via the `NotificationManager`. This approach is useful when you need to send a notification to multiple notifiable entities such as a collection of users. To send notifications using the manager, pass all of the notifiable entities and the notification instance to the `send()` method:
 
 ```php
-use Cake\Notification\NotificationManager;
+use Crustum\Notification\NotificationManager;
 use App\Notification\InvoicePaid;
 
 NotificationManager::send($users, new InvoicePaid($invoice));
@@ -91,12 +91,12 @@ The `via()` method receives a `$notifiable` instance, which will be an instance 
 
 ```php
 use Cake\Datasource\EntityInterface;
-use Cake\Notification\AnonymousNotifiable;
+use Crustum\Notification\AnonymousNotifiable;
 
 /**
  * Get the notification's delivery channels.
  *
- * @param \Cake\Datasource\EntityInterface|\Cake\Notification\AnonymousNotifiable $notifiable
+ * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
  * @return array<string>
  */
 public function via(EntityInterface|AnonymousNotifiable $notifiable): array
@@ -116,8 +116,8 @@ Sending notifications can take time, especially if the channel needs to make an 
 <?php
 namespace App\Notification;
 
-use Cake\Notification\Notification;
-use Cake\Notification\ShouldQueueInterface;
+use Crustum\Notification\Notification;
+use Crustum\Notification\ShouldQueueInterface;
 
 class InvoicePaid extends Notification implements ShouldQueueInterface
 {
@@ -157,8 +157,8 @@ By default, queued notifications will be queued using your application's default
 <?php
 namespace App\Notification;
 
-use Cake\Notification\Notification;
-use Cake\Notification\ShouldQueueInterface;
+use Crustum\Notification\Notification;
+use Crustum\Notification\ShouldQueueInterface;
 
 class InvoicePaid extends Notification implements ShouldQueueInterface
 {
@@ -176,8 +176,8 @@ If you would like to specify a specific queue that should be used for the notifi
 <?php
 namespace App\Notification;
 
-use Cake\Notification\Notification;
-use Cake\Notification\ShouldQueueInterface;
+use Crustum\Notification\Notification;
+use Crustum\Notification\ShouldQueueInterface;
 
 class InvoicePaid extends Notification implements ShouldQueueInterface
 {
@@ -197,7 +197,7 @@ However, if you would like to make the final determination on whether the queued
 /**
  * Determine if the notification should be sent.
  *
- * @param \Cake\Datasource\EntityInterface|\Cake\Notification\AnonymousNotifiable $notifiable
+ * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
  * @param string $channel
  * @return bool
  */
@@ -213,7 +213,7 @@ public function shouldSend(EntityInterface|AnonymousNotifiable $notifiable, stri
 Sometimes you may need to send a notification to someone who is not stored as a "user" of your application. Using `AnonymousNotifiable`, you may specify ad-hoc notification routing information before sending the notification:
 
 ```php
-use Cake\Notification\AnonymousNotifiable;
+use Crustum\Notification\AnonymousNotifiable;
 use App\Notification\InvoicePaid;
 
 $anonymous = new AnonymousNotifiable();
@@ -233,7 +233,7 @@ $anonymous->route('mail', ['barrett@example.com' => 'Barrett Blair']);
 You can use `NotificationManager::route()` as a shorthand:
 
 ```php
-use Cake\Notification\NotificationManager;
+use Crustum\Notification\NotificationManager;
 
 NotificationManager::route('mail', 'taylor@example.com')
     ->route('seven', '5555555555')
@@ -247,18 +247,18 @@ NotificationManager::route('mail', 'taylor@example.com')
 <a name="formatting-mail-messages"></a>
 ### Formatting Mail Messages
 
-If a notification supports being sent as an email, you should define a `toMail()` method on the notification class. This method will receive a `$notifiable` entity and should return a `Cake\Notification\Message\MailMessage` instance.
+If a notification supports being sent as an email, you should define a `toMail()` method on the notification class. This method will receive a `$notifiable` entity and should return a `Crustum\Notification\Message\MailMessage` instance.
 
 The `MailMessage` class contains a few simple methods to help you build transactional email messages. Mail messages may contain lines of text as well as a "call to action". Let's take a look at an example `toMail()` method:
 
 ```php
-use Cake\Notification\Message\MailMessage;
+use Crustum\Notification\Message\MailMessage;
 
 /**
  * Get the mail representation of the notification.
  *
- * @param \Cake\Datasource\EntityInterface|\Cake\Notification\AnonymousNotifiable $notifiable
- * @return \Cake\Notification\Message\MailMessage
+ * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
+ * @return \Crustum\Notification\Message\MailMessage
  */
 public function toMail(EntityInterface|AnonymousNotifiable $notifiable): MailMessage
 {
@@ -339,7 +339,7 @@ When sending notifications via the `mail` channel, the notification system will 
 <?php
 namespace App\Model\Entity;
 
-use Cake\Notification\Notification;
+use Crustum\Notification\Notification;
 use Cake\ORM\Entity;
 
 class User extends Entity
@@ -347,7 +347,7 @@ class User extends Entity
     /**
      * Route notifications for the mail channel.
      *
-     * @param \Cake\Notification\Notification $notification
+     * @param \Crustum\Notification\Notification $notification
      * @return array|string
      */
     public function routeNotificationForMail(Notification $notification): array|string
@@ -447,7 +447,7 @@ The `database` notification channel stores the notification information in a dat
 You can query the table to display the notifications in your application's user interface. But, before you can do that, you will need to create a database table to hold your notifications. You can use migrations to create the proper table schema:
 
 ```shell
-bin/cake migrations migrate -p Cake/Notification
+bin/cake migrations migrate -p Crustum/Notification
 ```
 
 <a name="formatting-database-notifications"></a>
@@ -459,7 +459,7 @@ If a notification supports being stored in a database table, you should define a
 /**
  * Get the array representation of the notification.
  *
- * @param \Cake\Datasource\EntityInterface|\Cake\Notification\AnonymousNotifiable $notifiable
+ * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
  * @return array<string, mixed>
  */
 public function toArray(EntityInterface|AnonymousNotifiable $notifiable): array
@@ -474,14 +474,14 @@ public function toArray(EntityInterface|AnonymousNotifiable $notifiable): array
 Alternatively, you can use the fluent `DatabaseMessage` API:
 
 ```php
-use Cake\Notification\Message\DatabaseMessage;
-use Cake\Notification\Message\Action;
+use Crustum\Notification\Message\DatabaseMessage;
+use Crustum\Notification\Message\Action;
 
 /**
  * Get the database representation of the notification.
  *
- * @param \Cake\Datasource\EntityInterface|\Cake\Notification\AnonymousNotifiable $notifiable
- * @return \Cake\Notification\Message\DatabaseMessage
+ * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
+ * @return \Crustum\Notification\Message\DatabaseMessage
  */
 public function toDatabase(EntityInterface|AnonymousNotifiable $notifiable): DatabaseMessage
 {
@@ -580,7 +580,7 @@ $usersTable->markAllNotificationsAsRead($user);
 You may also delete notifications directly through the Notifications table:
 
 ```php
-$notificationsTable = $this->getTableLocator()->get('Cake/Notification.Notifications');
+$notificationsTable = $this->getTableLocator()->get('Crustum/Notification.Notifications');
 $notificationsTable->deleteAll([
     'model' => 'Users',
     'foreign_key' => $user->id
@@ -596,13 +596,13 @@ $notificationsTable->deleteAll([
 The NotificationUI plugin provides a modern, modular JavaScript interface for displaying notifications to users. Install it via Composer:
 
 ```shell
-composer require skie/notification-ui
+composer require crustum/notification-ui
 ```
 
 Load the plugin in your `Application.php`:
 
 ```php
-$this->addPlugin('Cake/NotificationUI');
+$this->addPlugin('Crustum/NotificationUI');
 ```
 
 <a name="notification-ui-usage"></a>
@@ -614,7 +614,7 @@ Add the notification bell to your layout:
 <?php $authUser = $this->request->getAttribute('identity'); ?>
 
 <li class="nav-item">
-    <?= $this->element('Cake/NotificationUI.notifications/bell_icon', [
+    <?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
         'mode' => 'panel', // or 'dropdown'
     ]) ?>
 </li>
@@ -628,7 +628,7 @@ The notification bell will automatically poll the server for new notifications, 
 Customize the notification widget behavior:
 
 ```php
-<?= $this->element('Cake/NotificationUI.notifications/bell_icon', [
+<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
     'mode' => 'panel',          // 'dropdown' or 'panel'
     'position' => 'right',      // 'left' or 'right' (dropdown only)
     'theme' => 'dark',          // 'light' or 'dark'
@@ -650,7 +650,7 @@ Enable WebSocket broadcasting for instant notification delivery:
 ```php
 <?php $authUser = $this->request->getAttribute('identity'); ?>
 
-<?= $this->element('Cake/NotificationUI.notifications/bell_icon', [
+<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
     'mode' => 'panel',
     'enablePolling' => true,    // Keep database polling
     'broadcasting' => [         // Add real-time support
@@ -666,7 +666,7 @@ Enable WebSocket broadcasting for instant notification delivery:
 
 With broadcasting enabled, notifications are delivered instantly via WebSocket while still being persisted in the database. This provides the best user experience with reliable fallback.
 
-> **Note:** Broadcasting requires the `skie/broadcasting-notification` plugin to be installed and configured. See the [Broadcasting Notifications](modules.md#broadcasting-notifications) documentation for more details.
+> **Note:** Broadcasting requires the `crustum/broadcasting-notification` plugin to be installed and configured. See the [Broadcasting Notifications](modules.md#broadcasting-notifications) documentation for more details.
 
 <a name="localizing-notifications"></a>
 ## Localizing Notifications
@@ -724,7 +724,7 @@ $usersTable->notify($user, new InvoicePaid($invoice));
 <a name="testing"></a>
 ## Testing
 
-You may use the `\Cake\Notification\TestSuite\NotificationTrait` to prevent notifications from being sent during testing. Typically, sending notifications is unrelated to the code you are actually testing. Most likely, it is sufficient to simply assert that your application was instructed to send a given notification.
+You may use the `\Crustum\Notification\TestSuite\NotificationTrait` to prevent notifications from being sent during testing. Typically, sending notifications is unrelated to the code you are actually testing. Most likely, it is sufficient to simply assert that your application was instructed to send a given notification.
 
 After adding the `NotificationTrait` to your test case, you may then assert that notifications were instructed to be sent to users and even inspect the data the notifications received:
 
@@ -733,7 +733,7 @@ After adding the `NotificationTrait` to your test case, you may then assert that
 namespace App\Test\TestCase;
 
 use App\Notification\InvoicePaid;
-use Cake\Notification\TestSuite\NotificationTrait;
+use Crustum\Notification\TestSuite\NotificationTrait;
 use Cake\TestSuite\TestCase;
 
 class ExampleTest extends TestCase
@@ -966,7 +966,7 @@ public function testSlackNotificationFormat(): void
 If the code you are testing sends [on-demand notifications](#on-demand-notifications), you can test that the on-demand notification was sent via the `assertOnDemandNotificationSent` method:
 
 ```php
-use Cake\Notification\NotificationManager;
+use Crustum\Notification\NotificationManager;
 
 public function testOnDemandNotificationSent(): void
 {
@@ -1000,7 +1000,7 @@ public function testOnDemandNotificationContent(): void
 For more detailed email testing, you can combine `NotificationTrait` with CakePHP's `EmailTrait`:
 
 ```php
-use Cake\Notification\TestSuite\NotificationTrait;
+use Crustum\Notification\TestSuite\NotificationTrait;
 use Cake\TestSuite\EmailTrait;
 use Cake\TestSuite\TestCase;
 
@@ -1129,24 +1129,24 @@ EventManager::instance()->on('Model.Notification.failed', function (Event $event
 <a name="custom-channels"></a>
 ## Custom Channels
 
-CakePHP Notification Plugin ships with a handful of notification channels, but you may want to write your own channels to deliver notifications via other services. CakePHP makes it simple. To get started, define a class that implements the `Cake\Notification\Channel\ChannelInterface`. The interface requires a `send()` method:
+CakePHP Notification Plugin ships with a handful of notification channels, but you may want to write your own channels to deliver notifications via other services. CakePHP makes it simple. To get started, define a class that implements the `Crustum\Notification\Channel\ChannelInterface`. The interface requires a `send()` method:
 
 ```php
 <?php
 namespace App\Notification\Channel;
 
 use Cake\Datasource\EntityInterface;
-use Cake\Notification\AnonymousNotifiable;
-use Cake\Notification\Channel\ChannelInterface;
-use Cake\Notification\Notification;
+use Crustum\Notification\AnonymousNotifiable;
+use Crustum\Notification\Channel\ChannelInterface;
+use Crustum\Notification\Notification;
 
 class VoiceChannel implements ChannelInterface
 {
     /**
      * Send the given notification.
      *
-     * @param \Cake\Datasource\EntityInterface|\Cake\Notification\AnonymousNotifiable $notifiable
-     * @param \Cake\Notification\Notification $notification
+     * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
+     * @param \Crustum\Notification\Notification $notification
      * @return mixed
      */
     public function send(EntityInterface|AnonymousNotifiable $notifiable, Notification $notification): mixed
@@ -1163,7 +1163,7 @@ class VoiceChannel implements ChannelInterface
 Once your notification channel class has been defined, you need to register it with the `NotificationManager`. This is typically done in your application's bootstrap:
 
 ```php
-use Cake\Notification\NotificationManager;
+use Crustum\Notification\NotificationManager;
 use App\Notification\Channel\VoiceChannel;
 
 NotificationManager::setChannel('voice', new VoiceChannel());
@@ -1177,15 +1177,15 @@ namespace App\Notification;
 
 use App\Notification\Message\VoiceMessage;
 use Cake\Datasource\EntityInterface;
-use Cake\Notification\AnonymousNotifiable;
-use Cake\Notification\Notification;
+use Crustum\Notification\AnonymousNotifiable;
+use Crustum\Notification\Notification;
 
 class InvoicePaid extends Notification
 {
     /**
      * Get the notification channels.
      *
-     * @param \Cake\Datasource\EntityInterface|\Cake\Notification\AnonymousNotifiable $notifiable
+     * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
      * @return array<string>
      */
     public function via(EntityInterface|AnonymousNotifiable $notifiable): array
@@ -1196,7 +1196,7 @@ class InvoicePaid extends Notification
     /**
      * Get the voice representation of the notification.
      *
-     * @param \Cake\Datasource\EntityInterface|\Cake\Notification\AnonymousNotifiable $notifiable
+     * @param \Cake\Datasource\EntityInterface|\Crustum\Notification\AnonymousNotifiable $notifiable
      * @return \App\Notification\Message\VoiceMessage
      */
     public function toVoice(EntityInterface|AnonymousNotifiable $notifiable): VoiceMessage
@@ -1207,22 +1207,22 @@ class InvoicePaid extends Notification
 }
 ```
 
-Alternatively, you can register channels using a provider class. Create a provider class that implements `Cake\Notification\Provider\ChannelProviderInterface`:
+Alternatively, you can register channels using a provider class. Create a provider class that implements `Crustum\Notification\Provider\ChannelProviderInterface`:
 
 ```php
 <?php
 namespace App\Notification\Provider;
 
 use App\Notification\Channel\VoiceChannel;
-use Cake\Notification\Provider\ChannelProviderInterface;
-use Cake\Notification\Registry\ChannelRegistry;
+use Crustum\Notification\Provider\ChannelProviderInterface;
+use Crustum\Notification\Registry\ChannelRegistry;
 
 class VoiceChannelProvider implements ChannelProviderInterface
 {
     /**
      * Register the channel.
      *
-     * @param \Cake\Notification\Registry\ChannelRegistry $registry
+     * @param \Crustum\Notification\Registry\ChannelRegistry $registry
      * @return void
      */
     public function register(ChannelRegistry $registry): void
