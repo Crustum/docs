@@ -11,5 +11,5 @@ export const PLUGINS_INDEX_COUNT = 12
 
 // Configuration for recent plugins on home page
 // Number of plugins to show on the home page
-export const RECENT_PLUGINS_COUNT = 16
+export const RECENT_PLUGINS_COUNT = 12
 

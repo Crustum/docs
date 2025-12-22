@@ -1,5 +1,26 @@
 [
   {
+    "title": "Temporal Plugin",
+    "description": "Workflow orchestration for CakePHP applications using Temporal. Build distributed, scalable, durable, and highly available workflows for asynchronous long-running business logic in microservice architectures.",
+    "slug": "Temporal",
+    "path": "/Temporal/",
+    "name": "Temporal"
+  },
+  {
+    "title": "OpenRouter Plugin",
+    "description": "Easy-to-use interface for integrating OpenRouter into CakePHP applications. Unified interface for Large Language Models with type-safe DTOs for all API interactions including chat completions, streaming, tool calling, and more.",
+    "slug": "OpenRouter",
+    "path": "/OpenRouter/",
+    "name": "OpenRouter"
+  },
+  {
+    "title": "PluginManifest Plugin",
+    "description": "Plugin asset installation and publishing system for CakePHP 5.x. Standardized mechanism for plugins to distribute optional assets including configuration files, migrations, templates, and bootstrap code with smart duplicate detection.",
+    "slug": "PluginManifest",
+    "path": "/PluginManifest/",
+    "name": "PluginManifest"
+  },
+  {
     "title": "BatchQueue Plugin",
     "description": "Advanced job coordination system for CakePHP Queue. Handle parallel batches, sequential chains, saga compensation patterns, and dynamic workflow execution with proper failure handling.",
     "slug": "BatchQueue",
@@ -35,20 +56,6 @@
     "name": "NotificationUI"
   },
   {
-    "title": "OpenRouter Plugin",
-    "description": "Easy-to-use interface for integrating OpenRouter into CakePHP applications. Unified interface for Large Language Models with type-safe DTOs for all API interactions including chat completions, streaming, tool calling, and more.",
-    "slug": "OpenRouter",
-    "path": "/OpenRouter/",
-    "name": "OpenRouter"
-  },
-  {
-    "title": "PluginManifest Plugin",
-    "description": "Plugin asset installation and publishing system for CakePHP 5.x. Standardized mechanism for plugins to distribute optional assets including configuration files, migrations, templates, and bootstrap code with smart duplicate detection.",
-    "slug": "PluginManifest",
-    "path": "/PluginManifest/",
-    "name": "PluginManifest"
-  },
-  {
     "title": "RocketChatNotification Plugin",
     "description": "Seamless integration with RocketChat for team notifications. Send messages, alerts, and updates directly to RocketChat channels and users.",
     "slug": "RocketChatNotification",
@@ -75,12 +82,5 @@
     "slug": "TelegramNotification",
     "path": "/TelegramNotification/",
     "name": "TelegramNotification"
-  },
-  {
-    "title": "Temporal Plugin",
-    "description": "Workflow orchestration for CakePHP applications using Temporal. Build distributed, scalable, durable, and highly available workflows for asynchronous long-running business logic in microservice architectures.",
-    "slug": "Temporal",
-    "path": "/Temporal/",
-    "name": "Temporal"
   }
 ]

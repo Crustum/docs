@@ -2,6 +2,7 @@ import DefaultTheme from 'vitepress/theme-without-fonts'
 import Layout from './Layout.vue'
 import DynamicGitHubLink from './components/DynamicGitHubLink.vue'
 import PluginsList from './components/PluginsList.vue'
+import RecentPlugins from './components/RecentPlugins.vue'
 import codeblocksFold from 'vitepress-plugin-codeblocks-fold'
 import 'vitepress-plugin-codeblocks-fold/style/index.css'
 import { useData, useRoute } from 'vitepress'
@@ -14,6 +15,7 @@ export default {
   enhanceApp({ app, router, siteData }) {
     app.component('DynamicGitHubLink', DynamicGitHubLink)
     app.component('PluginsList', PluginsList)
+    app.component('RecentPlugins', RecentPlugins)
     if (typeof window !== 'undefined') {
       setInterval(() => {
         if (window.renderMermaidDiagrams) {

@@ -109,3 +109,109 @@
 .VPNav .VPNavBar .VPNavBarMenu .VPNavBarMenuLink .VPNavBarMenuLinkDropdown .VPNavBarMenuLink:hover {
     background-color: var(--vp-c-bg-soft);
 }
+
+/* Home page layout */
+.VPHome {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 1.5rem;
+}
+
+/* Hero spans full width */
+.VPHome .VPHero {
+    grid-column: 1 / -1;
+}
+
+/* Home content wrapper spans both columns with grid */
+.home-content-wrapper {
+    grid-column: 1 / -1;
+    margin-top: 0;
+}
+
+.home-plugins-column {
+    min-width: 0;
+}
+
+/* Plugins section styling */
+.home-plugins-column .VPFeatures {
+    margin-top: 0;
+    padding: 0px 64px;
+}
+
+.home-plugins-column .VPFeatures .container {
+    max-width: 100%;
+}
+
+/* Keep 4 columns for plugins grid */
+.home-plugins-column .VPFeatures .items {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.home-plugins-column .VPFeatures .item {
+    margin: 0;
+}
+
+.home-plugins-column .VPFeatures .item .VPFeature {
+    height: 100%;
+    border: 1px solid var(--vp-c-divider);
+    border-radius: 8px;
+    transition: border-color 0.25s, box-shadow 0.25s;
+    display: block;
+    text-decoration: none;
+}
+
+.home-plugins-column .VPFeatures .item .VPFeature:hover {
+    border-color: var(--vp-c-brand-1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.home-plugins-column .VPFeatures .item .box {
+    padding: 1.5rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.home-plugins-column .VPFeatures .item .title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.5;
+    margin: 0 0 0.5rem 0;
+    color: var(--vp-c-text-1);
+}
+
+.home-plugins-column .VPFeatures .item .details {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--vp-c-text-2);
+    margin: 0;
+    flex: 1;
+}
+
+/* On mobile, stack columns */
+@media (max-width: 960px) {
+    .VPHome {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .home-content-wrapper {
+        grid-column: 1;
+    }
+
+    .home-plugins-column .VPFeatures .items {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .home-plugins-column .VPFeatures .items {
+        grid-template-columns: 1fr;
+    }
+}

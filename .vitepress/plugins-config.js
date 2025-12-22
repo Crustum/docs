@@ -5,6 +5,24 @@
  */
 export const pluginsConfig = [
   {
+    title: 'Temporal Plugin',
+    details: 'Workflow orchestration for CakePHP applications using Temporal. Build distributed, scalable, durable, and highly available workflows for asynchronous long-running business logic in microservice architectures.',
+    link: '/Temporal/',
+    name: 'Temporal'
+  },
+  {
+    title: 'OpenRouter Plugin',
+    details: 'Easy-to-use interface for integrating OpenRouter into CakePHP applications. Unified interface for Large Language Models with type-safe DTOs for all API interactions including chat completions, streaming, tool calling, and more.',
+    link: '/OpenRouter/',
+    name: 'OpenRouter'
+  },
+  {
+    title: 'PluginManifest Plugin',
+    details: 'Plugin asset installation and publishing system for CakePHP 5.x. Standardized mechanism for plugins to distribute optional assets including configuration files, migrations, templates, and bootstrap code with smart duplicate detection.',
+    link: '/PluginManifest/',
+    name: 'PluginManifest'
+  },
+  {
     title: 'BatchQueue Plugin',
     details: 'Advanced job coordination system for CakePHP Queue. Handle parallel batches, sequential chains, saga compensation patterns, and dynamic workflow execution with proper failure handling.',
     link: '/BatchQueue/',
@@ -35,18 +53,6 @@ export const pluginsConfig = [
     name: 'NotificationUI'
   },
   {
-    title: 'OpenRouter Plugin',
-    details: 'Easy-to-use interface for integrating OpenRouter into CakePHP applications. Unified interface for Large Language Models with type-safe DTOs for all API interactions including chat completions, streaming, tool calling, and more.',
-    link: '/OpenRouter/',
-    name: 'OpenRouter'
-  },
-  {
-    title: 'PluginManifest Plugin',
-    details: 'Plugin asset installation and publishing system for CakePHP 5.x. Standardized mechanism for plugins to distribute optional assets including configuration files, migrations, templates, and bootstrap code with smart duplicate detection.',
-    link: '/PluginManifest/',
-    name: 'PluginManifest'
-  },
-  {
     title: 'RocketChatNotification Plugin',
     details: 'Seamless integration with RocketChat for team notifications. Send messages, alerts, and updates directly to RocketChat channels and users.',
     link: '/RocketChatNotification/',
@@ -69,12 +75,6 @@ export const pluginsConfig = [
     details: 'Telegram bot integration for notifications. Send messages, alerts, and media to Telegram channels and groups with advanced formatting support.',
     link: '/TelegramNotification/',
     name: 'TelegramNotification'
-  },
-  {
-    title: 'Temporal Plugin',
-    details: 'Workflow orchestration for CakePHP applications using Temporal. Build distributed, scalable, durable, and highly available workflows for asynchronous long-running business logic in microservice architectures.',
-    link: '/Temporal/',
-    name: 'Temporal'
   }
 ]
 
