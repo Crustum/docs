@@ -37,14 +37,18 @@ const route = useRoute()
 const { site } = useData()
 
 const pluginRepos = {
+  'BatchQueue': 'https://github.com/crustum/batch-queue',
   'Broadcasting': 'https://github.com/Crustum/Broadcasting',
+  'BroadcastingNotification': 'https://github.com/Crustum/BroadcastingNotification',
   'Notification': 'https://github.com/Crustum/Notification',
   'NotificationUI': 'https://github.com/Crustum/NotificationUI',
-  'BroadcastingNotification': 'https://github.com/Crustum/BroadcastingNotification',
+  'OpenRouter': 'https://github.com/crustum/open-router',
+  'PluginManifest': 'https://github.com/crustum/plugin-manifest',
   'RocketChatNotification': 'https://github.com/Crustum/RocketchatNotification',
   'SevenNotification': 'https://github.com/Crustum/SevenNotification',
   'SlackNotification': 'https://github.com/Crustum/SlackNotification',
-  'TelegramNotification': 'https://github.com/Crustum/TelegramNotification'
+  'TelegramNotification': 'https://github.com/Crustum/TelegramNotification',
+  'Temporal': 'https://github.com/crustum/cakephp-temporal'
 }
 
 const currentPluginName = computed(() => {

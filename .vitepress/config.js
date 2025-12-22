@@ -2,6 +2,36 @@ import { defineConfig } from 'vitepress'
 import { generateSidebars } from './sidebar.js'
 import { versionReplacer } from './plugins/version-replacer.js'
 import { mermaidPlugin } from './plugins/mermaid-simple.js'
+import { pluginsPlugin, generatePluginsMetadata, getPluginsMetadata, getPluginsConfig } from './plugins/plugins.js'
+import { pluginsConfig } from './plugins-config.js'
+import { RECENT_PLUGINS_COUNT } from './constants.js'
+
+// Generate plugins metadata on config load
+const plugins = generatePluginsMetadata(RECENT_PLUGINS_COUNT)
+
+// Generate plugins sidebar
+function generatePluginsSidebar() {
+  const pluginsList = getPluginsMetadata()
+  const sidebarItems = [
+    { text: 'All Plugins', link: '/plugins/' }
+  ]
+
+  // Add each plugin to the sidebar
+  pluginsList.forEach(plugin => {
+    sidebarItems.push({
+      text: plugin.title,
+      link: plugin.path
+    })
+  })
+
+  return [
+    {
+      text: 'Plugins',
+      collapsed: false,
+      items: sidebarItems
+    }
+  ]
+}
 
 export default defineConfig({
     srcDir: 'docs',
@@ -164,89 +194,28 @@ export default defineConfig({
     themeConfig: {
         logo: '/logo.svg',
         // start-sidebar
-        sidebar: {
-            "/": [
-                {
-                    "text": "Crustum CakePHP Plugins",
-                    "collapsed": false,
-                    "items": [
-                        { "text": "Home", "link": "/" }
-                    ]
-                }
-            ],
-            "/Broadcasting/": [
-                {
-                    "text": "Broadcasting",
-                    "collapsed": false,
-                    "items": [
-                        { "text": "Home", "link": "/Broadcasting/" }
-                    ]
-                }
-            ],
-            "/BroadcastingNotification/": [
-                {
-                    "text": "BroadcastingNotification",
-                    "collapsed": false,
-                    "items": [
-                        { "text": "Home", "link": "/BroadcastingNotification/" }
-                    ]
-                }
-            ],
-            "/Notification/": [
-                {
-                    "text": "Notification",
-                    "collapsed": false,
-                    "items": [
-                        { "text": "Home", "link": "/Notification/" },
-                    ]
-                }
-            ],
-            "/NotificationUI/": [
-                {
-                    "text": "NotificationUI",
-                    "collapsed": false,
-                    "items": [
-                        { "text": "Home", "link": "/NotificationUI/" }
-                    ]
-                }
-            ],
-            "/RocketChatNotification/": [
-                {
-                    "text": "RocketChatNotification",
-                    "collapsed": false,
-                    "items": [
-                        { "text": "Home", "link": "/RocketChatNotification/" }
-                    ]
-                }
-            ],
-            "/SevenNotification/": [
-                {
-                    "text": "SevenNotification",
-                    "collapsed": false,
-                    "items": [
-                        { "text": "Home", "link": "/SevenNotification/" }
-                    ]
-                }
-            ],
-            "/SlackNotification/": [
-                {
-                    "text": "SlackNotification",
-                    "collapsed": false,
-                    "items": [
-                        { "text": "Home", "link": "/SlackNotification/" }
-                    ]
-                }
-            ],
-            "/TelegramNotification/": [
-                {
-                    "text": "TelegramNotification",
-                    "collapsed": false,
-                    "items": [
-                        { "text": "Home", "link": "/TelegramNotification/" }
-                    ]
-                }
-            ]
-        },
+        sidebar: (() => {
+            const sidebar = {
+                "/": [
+                    {
+                        "text": "Crustum CakePHP Plugins",
+                        "collapsed": false,
+                        "items": [
+                            { "text": "Home", "link": "/" }
+                        ]
+                    }
+                ],
+                "/plugins/": generatePluginsSidebar()
+            }
+
+            // Add sidebar entries for individual plugin pages
+            const pluginsList = getPluginsMetadata()
+            pluginsList.forEach(plugin => {
+                sidebar[plugin.path] = generatePluginsSidebar()
+            })
+
+            return sidebar
+        })(),
         // end-sidebar
         // socialLinks: [
         //     { icon: 'github', link: 'https://github.com/skie' },
@@ -278,6 +247,11 @@ export default defineConfig({
                 timeStyle: 'medium'
             }
         }
+    },
+    vite: {
+        plugins: [
+            pluginsPlugin(RECENT_PLUGINS_COUNT)
+        ]
     },
     build: {
         rollupOptions: {
@@ -321,18 +295,15 @@ export default defineConfig({
             lang: 'en',
             themeConfig: {
                 nav: [
+                    { text: 'All Plugins', link: '/plugins/' },
                     {
                         text: 'Plugins',
-                        items: [
-                            { text: 'Broadcasting Plugin', link: '/Broadcasting/' },
-                            { text: 'Notification Plugin', link: '/Notification/' },
-                            { text: 'BroadcastingNotification', link: '/BroadcastingNotification/' },
-                            { text: 'NotificationUI', link: '/NotificationUI/' },
-                            { text: 'RocketChatNotification', link: '/RocketChatNotification/' },
-                            { text: 'SevenNotification', link: '/SevenNotification/' },
-                            { text: 'SlackNotification', link: '/SlackNotification/' },
-                            { text: 'TelegramNotification', link: '/TelegramNotification/' },
-                        ]
+                        items: [...pluginsConfig]
+                            .sort((a, b) => a.title.localeCompare(b.title))
+                            .map(plugin => {
+                                let text = plugin.title.replace(/\s+Plugin$/, '')
+                                return { text, link: plugin.link }
+                            })
                     }
                 ],
             }

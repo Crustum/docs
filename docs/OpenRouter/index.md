@@ -1,0 +1,910 @@
+# CakePHP OpenRouter Plugin
+
+<a name="introduction"></a>
+## Introduction
+
+This CakePHP plugin provides an easy-to-use interface for integrating **[OpenRouter](https://openrouter.ai/)** into your CakePHP applications. **OpenRouter** is a unified interface for Large Language Models (LLMs) that allows you to interact with various **[AI models](https://openrouter.ai/models)** through a single API.
+
+The plugin provides a clean, type-safe interface using Data Transfer Objects (DTOs) for all API interactions, making it easy to work with OpenRouter's extensive feature set including chat completions, streaming, tool calling, web search, file inputs, and more.
+
+<a name="requirements"></a>
+## Requirements
+
+- **PHP 8.3** or **higher**
+- **CakePHP 5.1+**
+- **OpenRouter API Key** - You can obtain this from the [OpenRouter dashboard](https://openrouter.ai/settings/keys)
+
+<a name="installation"></a>
+## Installation
+
+You can **install** the package via composer:
+
+```bash
+composer require crustum/openrouter
+```
+
+Load the plugin in your `Application.php`:
+
+```php
+// In src/Application.php
+public function bootstrap(): void
+{
+    parent::bootstrap();
+
+    $this->addPlugin('Crustum/OpenRouter');
+}
+```
+
+Install the configuration file using the PluginManifest system:
+
+```bash
+bin/cake manifest install --plugin OpenRouter
+```
+
+<a name="configuration"></a>
+## Configuration
+
+After installing the plugin configuration file, you'll need to add the following environment variables to your **.env** file:
+
+```env
+OPENROUTER_API_ENDPOINT=https://openrouter.ai/api/v1/
+OPENROUTER_API_KEY=your_api_key
+OPENROUTER_API_TIMEOUT=20
+OPENROUTER_API_TITLE=CakePHP OpenRouter
+OPENROUTER_API_REFERER=
+```
+
+Or configure directly in `config/app_local.php`:
+
+```php
+return [
+    'OpenRouter' => [
+        'api_key' => env('OPENROUTER_API_KEY'),
+        'api_endpoint' => env('OPENROUTER_API_ENDPOINT', 'https://openrouter.ai/api/v1/'),
+        'api_timeout' => env('OPENROUTER_API_TIMEOUT', 20),
+        'title' => env('OPENROUTER_API_TITLE', 'CakePHP OpenRouter'),
+        'referer' => env('OPENROUTER_API_REFERER', ''),
+    ],
+];
+```
+
+> [!NOTE]
+>
+> - `OPENROUTER_API_ENDPOINT`: The endpoint URL for the **OpenRouter API** (default: https://openrouter.ai/api/v1/).
+> - `OPENROUTER_API_KEY`: Your **API key** for accessing the OpenRouter API. You can obtain this key from the [OpenRouter dashboard](https://openrouter.ai/settings/keys).
+> - `OPENROUTER_API_TIMEOUT`: Request timeout in seconds. Increase value to 120 - 180 if you use long-thinking models like openai/o1 (default: 20)
+> - `OPENROUTER_API_TITLE`: Optional - Site URL for rankings on openrouter.ai
+> - `OPENROUTER_API_REFERER`: Optional - Site referer for rankings on openrouter.ai
+
+<a name="usage"></a>
+## Usage
+
+This package provides two ways to interact with the OpenRouter API:
+
+- Using the [`OpenRouter`](src/OpenRouter.php) facade (static class)
+- Instantiating the [`OpenRouterRequest`](src/Request/OpenRouterRequest.php) class directly.
+
+Both methods utilize the [`ChatData`](src/DTO/ChatData.php) DTO class to structure the data sent to the API.
+
+<a name="understanding-chatdata-dto"></a>
+### Understanding ChatData DTO
+
+The [`ChatData`](src/DTO/ChatData.php) class is used to **encapsulate the data** required for making chat requests to the OpenRouter API. Here's a breakdown of the key properties:
+
+- **messages** (array|null): An array of [`MessageData`](src/DTO/MessageData.php) objects representing the chat messages. This field is XOR-gated with the `prompt` field.
+- **prompt** (string|null): A string representing the prompt for the chat request. This field is XOR-gated with the `messages` field.
+- **model** (string|null): The name of the model to be used for the chat request. If not specified, the user's default model will be used. This field is XOR-gated with the `models` field.
+- **response_format** (ResponseFormatData|null): An instance of the [`ResponseFormatData`](src/DTO/ResponseFormatData.php) class representing the desired format for the response.
+- **usage** (bool|null): A boolean indicating whether to include usage information in the response. Default is `false` because enabling usage accounting will add a few hundred milliseconds to the response as the API calculates token counts and costs.
+- **stop** (array|string|null): A value specifying the stop sequence for the chat generation.
+- **stream** (bool|null): A boolean indicating whether streaming should be enabled or not.
+- **include_reasoning** (bool|null): Whether to return the model's reasoning (Note: this parameter is **deprecated**, use `reasoning` parameter instead. For backward compatibility, package still supports the `include_reasoning` parameter)
+- **reasoning** (ReasoningData|null): An instance of the [`ReasoningData`](src/DTO/ReasoningData.php) class for reasoning configuration. It provides a transparent look into the reasoning steps taken by a model.
+
+<a name="llm-parameters"></a>
+#### LLM Parameters
+
+These properties control various aspects of the generated response (more [info](https://openrouter.ai/docs/api-reference/parameters)):
+
+- **max_tokens** (int|null): The maximum number of tokens that can be generated in the completion. Default is 1024.
+- **temperature** (float|null): A value between 0 and 2 controlling the randomness of the output.
+- **top_p** (float|null): A value between 0 and 1 for nucleus sampling, an alternative to temperature sampling.
+- **top_k** (float|null): A value between 1 and infinity for top-k sampling (not available for OpenAI models).
+- **frequency_penalty** (float|null): A value between -2 and 2 for penalizing new tokens based on their existing frequency.
+- **presence_penalty** (float|null): A value between -2 and 2 for penalizing new tokens based on whether they appear in the text so far.
+- **repetition_penalty** (float|null): A value between 0 and 2 for penalizing repetitive tokens.
+- **seed** (int|null): A value for deterministic sampling (OpenAI models only, in beta).
+
+<a name="tool-calling-parameters"></a>
+#### Tool-calling Parameters
+
+Only natively supported by OpenAI models. For others, we submit a YAML-formatted string with these tools at the end of the prompt.
+
+- **tool_choice** (string|array|null): A value specifying the tool choice for function calling (OpenAI models only).
+- **tools** (array|null): An array of [`ToolCallData`](src/DTO/ToolCallData.php) objects for function calling.
+
+<a name="additional-optional-parameters"></a>
+#### Additional Optional Parameters
+
+- **logit_bias** (array|null): An array for modifying the likelihood of specified tokens appearing in the completion.
+
+<a name="openrouter-only-parameters"></a>
+#### OpenRouter-only Parameters
+
+- **transforms** (array|null): An array for configuring prompt transforms.
+- **plugins** (array|null): An array of [`PluginData`](src/DTO/PluginData.php) objects for configuring plugins such as `web search` or `file parsing`.
+- **web_search_options** (WebSearchOptionsData|null): An instance of the [`WebSearchOptionsData`](src/DTO/WebSearchOptionsData.php) DTO object for configuring web search (e.g. `search_context_size: SearchContextSizeType::LOW`).
+- **models** (array|null): An array of models to automatically try if the primary model is unavailable. This field is XOR-gated with the `model` field.
+- **route** (string|null): A value specifying the route type (e.g., `RouteType::FALLBACK`).
+- **provider** (ProviderPreferencesData|null): An instance of the [`ProviderPreferencesData`](src/DTO/ProviderPreferencesData.php) DTO object for configuring provider preferences.
+
+<a name="creating-a-chatdata-instance"></a>
+### Creating a ChatData Instance
+
+This is a sample chat data instance:
+
+```php
+use Crustum\OpenRouter\DTO\ChatData;
+use Crustum\OpenRouter\DTO\MessageData;
+use Crustum\OpenRouter\DTO\TextContentData;
+use Crustum\OpenRouter\DTO\ImageContentPartData;
+use Crustum\OpenRouter\DTO\ImageUrlData;
+use Crustum\OpenRouter\DTO\ResponseFormatData;
+use Crustum\OpenRouter\DTO\ReasoningData;
+use Crustum\OpenRouter\DTO\PluginData;
+use Crustum\OpenRouter\DTO\WebSearchOptionsData;
+use Crustum\OpenRouter\DTO\ProviderPreferencesData;
+use Crustum\OpenRouter\DTO\ImageConfigData;
+use Crustum\OpenRouter\Types\RoleType;
+use Crustum\OpenRouter\Types\EffortType;
+use Crustum\OpenRouter\Types\RouteType;
+use Crustum\OpenRouter\Types\SearchContextSizeType;
+use Crustum\OpenRouter\Types\DataCollectionType;
+
+$chatData = new ChatData(
+    messages: [
+        new MessageData(
+            role: RoleType::USER,
+            content: [
+                new TextContentData(
+                    type: TextContentData::ALLOWED_TYPE,
+                    text: 'This is a sample text content.',
+                ),
+                new ImageContentPartData(
+                    type: ImageContentPartData::ALLOWED_TYPE,
+                    image_url: new ImageUrlData(
+                        url: 'https://example.com/image.jpg',
+                        detail: 'Sample image',
+                    ),
+                ),
+            ],
+        ),
+    ],
+    response_format: new ResponseFormatData(
+        type: 'json_object',
+    ),
+    usage: true,
+    stop: ['stop_token'],
+    stream: false,
+    reasoning: new ReasoningData(
+        effort: EffortType::HIGH,
+        exclude: false,
+    ),
+    max_tokens: 1024,
+    temperature: 0.7,
+    top_p: 0.9,
+    top_k: 50,
+    frequency_penalty: 0.5,
+    presence_penalty: 0.2,
+    repetition_penalty: 1.2,
+    seed: 42,
+    tool_choice: 'auto',
+    tools: [
+        // ToolCallData instances
+    ],
+    logit_bias: [
+        '50256' => -100,
+    ],
+    transforms: ['middle-out'],
+    plugins: [
+        new PluginData(
+            id: 'web',
+            max_results: 3,
+            engine: 'native',
+        ),
+    ],
+    web_search_options: new WebSearchOptionsData(
+        search_context_size: SearchContextSizeType::MEDIUM,
+    ),
+    models: ['model1', 'model2'],
+    route: RouteType::FALLBACK,
+    provider: new ProviderPreferencesData(
+        allow_fallbacks: true,
+        require_parameters: true,
+        data_collection: DataCollectionType::ALLOW,
+    ),
+    modalities: ['image', 'text'],
+    image_config: new ImageConfigData(
+        aspect_ratio: '16:9',
+    ),
+);
+```
+
+<a name="using-openrouter-facade"></a>
+### Using OpenRouter Facade
+
+The `OpenRouter` facade offers a convenient way to make OpenRouter API requests.
+
+<a name="chat-request"></a>
+#### Chat Request
+
+To send a chat request, create an instance of [`ChatData`](src/DTO/ChatData.php) and pass it to the `chat` method:
+
+```php
+use Crustum\OpenRouter\OpenRouter;
+use Crustum\OpenRouter\DTO\ChatData;
+use Crustum\OpenRouter\DTO\MessageData;
+use Crustum\OpenRouter\Types\RoleType;
+
+$content = 'Tell me a story about a rogue AI that falls in love with its creator.';
+$model = 'mistralai/mistral-7b-instruct:free';
+$messageData = new MessageData(
+    content: $content,
+    role: RoleType::USER,
+);
+
+$chatData = new ChatData(
+    messages: [
+        $messageData,
+    ],
+    model: $model,
+    max_tokens: 100,
+);
+
+$chatResponse = OpenRouter::chat($chatData);
+
+// Check if response is successful
+if ($chatResponse instanceof \Crustum\OpenRouter\DTO\ResponseData) {
+    // You can convert the response `toArray` if needed
+    $responseArray = $chatResponse->toArray();
+
+    // Access the content
+    $content = $chatResponse->choices[0]['message']['content'] ?? null;
+} else {
+    // Handle ErrorData
+    echo $chatResponse->message;
+}
+```
+
+<a name="stream-chat-request"></a>
+##### Stream Chat Request
+
+Streaming chat request is also supported and can be used as following by using **chatStreamRequest** function:
+
+```php
+use Crustum\OpenRouter\OpenRouter;
+use Crustum\OpenRouter\DTO\ChatData;
+use Crustum\OpenRouter\DTO\MessageData;
+use Crustum\OpenRouter\Types\RoleType;
+use Crustum\OpenRouter\Request\OpenRouterRequest;
+
+$content = 'Tell me a story about a rogue AI that falls in love with its creator.';
+$model = 'mistralai/mistral-7b-instruct:free';
+$messageData = new MessageData(
+    content: $content,
+    role: RoleType::USER,
+);
+
+$chatData = new ChatData(
+    messages: [
+        $messageData,
+    ],
+    model: $model,
+    max_tokens: 100,
+);
+
+// Get the request handler
+$request = OpenRouter::getRequest();
+
+// Calls chatStreamRequest ($promise is type of PromiseInterface)
+$promise = $request->chatStreamRequest($chatData);
+
+// Waits until the promise completes if possible.
+$stream = $promise->wait(); // $stream is type of GuzzleHttp\Psr7\Stream
+
+// 1) You can retrieve whole raw response as:
+$rawResponseAll = $stream->getContents();
+$response = $request->filterStreamingResponse($rawResponseAll);
+
+// 2) Or Retrieve streamed raw response as it becomes available:
+while (!$stream->eof()) {
+    $rawResponse = $stream->read(1024); // readByte can be set as desired, for better performance 4096 byte (4kB) can be used.
+
+    // Optionally you can use filterStreamingResponse to filter raw streamed response
+    $response = $request->filterStreamingResponse($rawResponse);
+
+    foreach ($response as $responseData) {
+        // Process each responseData as needed
+        echo $responseData->choices[0]['delta']['content'] ?? '';
+    }
+}
+```
+
+You do **not** need to specify `stream: true` in ChatData since `chatStreamRequest` does it for you.
+
+<a name="maintaining-conversation-continuity"></a>
+##### Maintaining Conversation Continuity
+
+If you want to maintain **conversation continuity** meaning that historical chat will be remembered and considered for your new chat request, you need to send historical messages along with the new message:
+
+```php
+use Crustum\OpenRouter\OpenRouter;
+use Crustum\OpenRouter\DTO\ChatData;
+use Crustum\OpenRouter\DTO\MessageData;
+use Crustum\OpenRouter\Types\RoleType;
+
+$model = 'mistralai/mistral-7b-instruct:free';
+
+$firstMessage = new MessageData(
+    role: RoleType::USER,
+    content: 'My name is Moe, the AI necromancer.',
+);
+
+$chatData = new ChatData(
+    messages: [
+        $firstMessage,
+    ],
+    model: $model,
+);
+
+// This is the chat which you want LLM to remember
+$oldResponse = OpenRouter::chat($chatData);
+
+// Here adding historical response to new message
+$historicalMessage = new MessageData(
+    role: RoleType::ASSISTANT,
+    content: $oldResponse->choices[0]['message']['content'] ?? '',
+);
+
+// This is your new message
+$newMessage = new MessageData(
+    role: RoleType::USER,
+    content: 'Who am I?',
+);
+
+$chatData = new ChatData(
+    messages: [
+        $historicalMessage,
+        $newMessage,
+    ],
+    model: $model,
+);
+
+$response = OpenRouter::chat($chatData);
+```
+
+<a name="tool--function-calling"></a>
+##### Tool & Function Calling
+
+(Please also refer to [OpenRouter Document Function Calling](https://openrouter.ai/docs/guides/features/tool-calling) for more details and [models supporting tool calling](https://openrouter.ai/models?supported_parameters=tools))
+
+Tool calls (also known as function calls) give an LLM access to external tools. The LLM does not call the tools directly. Instead, it suggests the tool to call.
+
+> [!NOTE]
+> The user then calls the tool separately and provides the results back to the LLM.
+> Finally, the LLM formats the response into an answer to the user's original question.
+
+This is an example of how to use tool calling with OpenRouter:
+
+```php
+use Crustum\OpenRouter\OpenRouter;
+use Crustum\OpenRouter\DTO\ChatData;
+use Crustum\OpenRouter\DTO\MessageData;
+use Crustum\OpenRouter\DTO\ToolCallData;
+use Crustum\OpenRouter\DTO\FunctionData;
+use Crustum\OpenRouter\Types\RoleType;
+use Crustum\OpenRouter\Types\ToolChoiceType;
+
+// Define the tool using ToolCallData and FunctionData
+$tools = [
+    new ToolCallData(
+        type: 'function',
+        function: new FunctionData(
+            name: 'getWeather',
+            description: 'Get the current weather for a location',
+            parameters: [
+                'type' => 'object',
+                'properties' => [
+                    'location' => [
+                        'type' => 'string',
+                        'description' => 'The city name',
+                    ],
+                ],
+                'required' => ['location'],
+            ],
+        ),
+    ),
+];
+
+// Create chat request with tools
+$chatData = new ChatData(
+    messages: [
+        new MessageData(
+            role: RoleType::USER,
+            content: 'What is the weather like in Tokyo?',
+        ),
+    ],
+    model: 'openai/gpt-4o-mini',
+    tools: $tools,
+    tool_choice: ToolChoiceType::AUTO,
+);
+
+// Send request, if tool call is suggested by LLM, call the tool and provide the result back to LLM
+$response = OpenRouter::chat($chatData);
+
+if ($response instanceof \Crustum\OpenRouter\DTO\ResponseData) {
+    // If LLM suggested tool call then extract the tool call returned from LLM
+    $toolCall = $response->choices[0]['message']['tool_calls'][0] ?? null;
+    if ($toolCall) {
+        $toolCallId = $toolCall['id']; // e.g. "call_7F3kP9"
+
+        // Sample tool result assuming you called the tool and got the result
+        $toolResult = [
+            'temperature' => '22°C',
+            'condition' => 'Sunny',
+        ];
+
+        // Provide tool result back to LLM:
+        $userMessage = new MessageData(
+            role: RoleType::USER,
+            content: 'What is the weather like in Tokyo?',
+        );
+
+        $assistantToolCallMessage = new MessageData(
+            role: RoleType::ASSISTANT,
+            tool_calls: [
+                new ToolCallData(
+                    id: $toolCallId,
+                    type: 'function',
+                    function: new FunctionData(
+                        name: $toolCall['function']['name'],
+                        arguments: $toolCall['function']['arguments'],
+                    ),
+                ),
+            ],
+        );
+
+        $toolResponseMessage = new MessageData(
+            role: RoleType::TOOL,
+            tool_call_id: $toolCallId,
+            content: json_encode($toolResult),
+        );
+
+        $chatDataWithToolResult = new ChatData(
+            messages: [
+                $userMessage,
+                $assistantToolCallMessage,
+                $toolResponseMessage,
+            ],
+            model: 'openai/gpt-4o-mini',
+        );
+
+        // Send request with tool result
+        $finalResponse = OpenRouter::chat($chatDataWithToolResult);
+    }
+}
+```
+
+> Basically it follows these steps:
+> 1. Define the tools and send the initial chat request including the tools and tool_choice optional parameters.
+> 2. If the LLM suggests a tool call, extract the tool call information from the response and make the actual tool call separately.
+> 3. Provide the tool result back to the LLM by creating a new chat request that includes the original user message, the assistant's tool call message, and the tool response message including the tool_call_id which is the ID generated by the model/LLM for the tool call.
+> 4. Send the new chat request to get the final response from the LLM.
+
+<a name="structured-output"></a>
+##### Structured Output
+
+(Please also refer to [OpenRouter Document Structured Output](https://openrouter.ai/docs/features/structured-outputs) for models supporting structured output, also for more details)
+
+If you want to receive the response in a structured format, you can specify the `type` property for `response_format` ([ResponseFormatData](src/DTO/ResponseFormatData.php)) as `json_object` in the [`ChatData`](src/DTO/ChatData.php) object.
+
+Additionally, it's recommended to set the `require_parameters` property for `provider` ([ProviderPreferencesData](src/DTO/ProviderPreferencesData.php)) to `true` in the [`ChatData`](src/DTO/ChatData.php) object.
+
+> [!CAUTION]
+> When using structured outputs, you may encounter these scenarios:
+>
+> - Model doesn't support structured outputs
+> - Invalid schema
+>
+> Also: If you face an error, remove `require_parameters` property of `provider` to see the result.
+>
+> Check out [Requiring Providers to Support All Parameters](https://openrouter.ai/docs/features/provider-routing#requiring-providers-to-support-all-parameters-beta) for more details.
+
+```php
+use Crustum\OpenRouter\OpenRouter;
+use Crustum\OpenRouter\DTO\ChatData;
+use Crustum\OpenRouter\DTO\MessageData;
+use Crustum\OpenRouter\DTO\ResponseFormatData;
+use Crustum\OpenRouter\DTO\ProviderPreferencesData;
+use Crustum\OpenRouter\Types\RoleType;
+
+$chatData = new ChatData(
+    messages: [
+        new MessageData(
+            role: RoleType::USER,
+            content: 'Tell me a story about a rogue AI that falls in love with its creator.',
+        ),
+    ],
+    model: 'mistralai/mistral-7b-instruct:free',
+    response_format: new ResponseFormatData(
+        type: 'json_object',
+    ),
+    provider: new ProviderPreferencesData(
+        require_parameters: true,
+    ),
+);
+
+$response = OpenRouter::chat($chatData);
+```
+
+You can also specify the `response_format` as `json_schema` to receive the response in a specified schema format (Advisable to set `'strict' => true` in `json_schema` array for strict schema):
+
+```php
+$chatData = new ChatData(
+    messages: [
+        new MessageData(
+            role: RoleType::USER,
+            content: 'Tell me a story about a rogue AI that falls in love with its creator.',
+        ),
+    ],
+    model: 'mistralai/mistral-7b-instruct:free',
+    response_format: new ResponseFormatData(
+        type: 'json_schema',
+        json_schema: [
+            'name' => 'article',
+            'strict' => true,
+            'schema' => [
+                'type' => 'object',
+                'properties' => [
+                    'title' => [
+                        'type' => 'string',
+                        'description' => 'article title'
+                    ],
+                    'details' => [
+                        'type' => 'string',
+                        'description' => 'article detail'
+                    ],
+                    'keywords' => [
+                        'type' => 'string',
+                        'description' => 'article keywords',
+                    ],
+                ],
+                'required' => ['title', 'details', 'keywords'],
+                'additionalProperties' => false
+            ]
+        ],
+    ),
+    provider: new ProviderPreferencesData(
+        require_parameters: true,
+    ),
+);
+```
+
+> [!TIP]
+> You can also use **prompt engineering** to obtain structured output and control the format of responses.
+
+<a name="web-search"></a>
+##### Web Search
+
+(Please also refer to [OpenRouter Document Web Search](https://openrouter.ai/docs/guides/features/plugins/web-search) for more details)
+
+**Web Search** feature works on any model on OpenRouter.
+
+You can incorporate relevant web search results for any model on OpenRouter by activating and customizing the web plugin, or by appending :online to the model slug.
+e.g., `model: "openai/gpt-4o:online"` or `model: "openai/gpt-oss-20b:free:online"`.
+
+```php
+use Crustum\OpenRouter\OpenRouter;
+use Crustum\OpenRouter\DTO\ChatData;
+use Crustum\OpenRouter\DTO\MessageData;
+use Crustum\OpenRouter\DTO\WebSearchOptionsData;
+use Crustum\OpenRouter\Types\RoleType;
+use Crustum\OpenRouter\Types\SearchContextSizeType;
+
+$chatData = new ChatData(
+    messages: [
+        new MessageData(
+            role: RoleType::USER,
+            content: 'What are the latest developments in AI?',
+        ),
+    ],
+    model: 'openai/gpt-4o:online',
+    web_search_options: new WebSearchOptionsData(
+        search_context_size: SearchContextSizeType::HIGH,
+    ),
+);
+
+$response = OpenRouter::chat($chatData);
+```
+
+`web_search_options` parameter in ChatData is optional, where you can customize the web search behavior
+as `search_context_size` can be set to `low`, `medium`, or `high` depending on how much web search context you want to include in the response.
+- `SearchContextSizeType::LOW` is for minimal search context, suitable for basic queries.
+- `SearchContextSizeType::MEDIUM` is for moderate amount of web search context.
+- `SearchContextSizeType::HIGH` is for extensive web search context.
+
+`:online` is a shortcut for using the web plugin, and is exactly equivalent to:
+
+```php
+use Crustum\OpenRouter\OpenRouter;
+use Crustum\OpenRouter\DTO\ChatData;
+use Crustum\OpenRouter\DTO\MessageData;
+use Crustum\OpenRouter\DTO\PluginData;
+use Crustum\OpenRouter\DTO\WebSearchOptionsData;
+use Crustum\OpenRouter\Types\RoleType;
+use Crustum\OpenRouter\Types\SearchContextSizeType;
+
+$chatData = new ChatData(
+    messages: [
+        new MessageData(
+            role: RoleType::USER,
+            content: 'What are the latest developments in AI?',
+        ),
+    ],
+    model: 'openai/gpt-4o',
+    plugins: [
+        new PluginData(
+            id: 'web',
+            max_results: 5,
+            engine: 'undefined',
+        ),
+    ],
+    web_search_options: new WebSearchOptionsData(
+        search_context_size: SearchContextSizeType::MEDIUM,
+    ),
+);
+```
+
+`engine` parameter in PluginData is optional, where you can specify the web search engine to be used:
+- `native`: Always uses the model provider's built-in web search capabilities
+- `exa`: Uses Exa's search API for web results
+- `undefined`: Uses native search if available for the provider, otherwise falls back to Exa
+
+And here is how **annotations** are included in the response when using **web search** where annotations contains `type`: `url_citation` and `url_citation`: {`url`, `title`, `content`, `start_index`, `end_index`}:
+
+```php
+$response = OpenRouter::chat($chatData);
+
+if ($response instanceof \Crustum\OpenRouter\DTO\ResponseData) {
+    $annotations = $response->choices[0]['message']['annotations'] ?? [];
+}
+```
+
+<a name="filedocument-inputs"></a>
+##### File/Document Inputs
+
+(Please also refer to [OpenRouter Document File Inputs](https://openrouter.ai/docs/guides/overview/multimodal/pdfs) for more details)
+
+You can provide file input by using the `FileContentData` DTO class as following:
+
+```php
+use Crustum\OpenRouter\OpenRouter;
+use Crustum\OpenRouter\DTO\ChatData;
+use Crustum\OpenRouter\DTO\MessageData;
+use Crustum\OpenRouter\DTO\TextContentData;
+use Crustum\OpenRouter\DTO\FileContentData;
+use Crustum\OpenRouter\DTO\FileUrlData;
+use Crustum\OpenRouter\DTO\PluginData;
+use Crustum\OpenRouter\Types\RoleType;
+
+$model = 'anthropic/claude-3.5-sonnet';
+
+// Plugin configuration for file parsing, optional
+$plugins = [
+    new PluginData(
+        id: 'file-parser',
+        pdf: [
+            'engine' => 'pdf-text', // Supported engines: pdf-text, mistral-ocr and native
+        ],
+    ),
+];
+
+// For the publicly accessible PDFs
+$fileContentData = new FileContentData(
+    type: FileContentData::ALLOWED_TYPE,
+    file: new FileUrlData(
+        file_data: 'https://example.com/report.pdf',
+        filename: 'quarterly-report.pdf',
+    ),
+);
+
+$textContentData = new TextContentData(
+    type: TextContentData::ALLOWED_TYPE,
+    text: 'Please summarize this document.',
+);
+
+$messageData = new MessageData(
+    content: [
+        $textContentData,
+        $fileContentData,
+    ],
+    role: RoleType::USER,
+);
+
+$chatData = new ChatData(
+    messages: [$messageData],
+    model: $model,
+    plugins: $plugins,
+);
+
+$response = OpenRouter::chat($chatData);
+```
+
+> [!NOTE]
+> - `plugins` parameter in ChatData is optional.
+> - If you don't explicitly specify an **engine**, OpenRouter will default first to the model's native file processing capabilities, and if that's not available, it will use the "mistral-ocr" engine.
+
+*Using base64-encoded files*:
+
+```php
+$base64Data = base64_encode(file_get_contents('/path/to/document.pdf'));
+
+$fileContentData = new FileContentData(
+    type: FileContentData::ALLOWED_TYPE,
+    file: new FileUrlData(
+        file_data: "data:application/pdf;base64,{$base64Data}",
+        filename: 'document.pdf',
+    ),
+);
+```
+
+> [!TIP]
+> - **File input** feature works on any model on OpenRouter.
+> - The `filename` parameter is optional but recommended for context.
+
+<a name="audio-inputs"></a>
+##### Audio Inputs
+
+(Please also refer to [OpenRouter Document Audio Inputs](https://openrouter.ai/docs/features/multimodal/audio) for models supporting audio inputs, also for more details)
+
+Audio input is supported by some models in OpenRouter. You can provide audio input by using the `AudioContentData` DTO class as following:
+
+```php
+use Crustum\OpenRouter\OpenRouter;
+use Crustum\OpenRouter\DTO\ChatData;
+use Crustum\OpenRouter\DTO\MessageData;
+use Crustum\OpenRouter\DTO\TextContentData;
+use Crustum\OpenRouter\DTO\AudioContentData;
+use Crustum\OpenRouter\DTO\InputAudioData;
+use Crustum\OpenRouter\Types\RoleType;
+use Crustum\OpenRouter\Types\AudioFormatType;
+
+$model = 'mistralai/voxtral-small-24b-2507'; // Audio input supported models: https://openrouter.ai/models?fmt=cards&input_modalities=audio
+$data = base64_encode(file_get_contents('path/of/audio/file.mp3')); // Base64-encoded audio data
+
+$audioContentData = new AudioContentData(
+    type: AudioContentData::ALLOWED_TYPE,
+    input_audio: new InputAudioData(
+        data: $data,
+        format: AudioFormatType::MP3, // Supported formats: mp3, wav
+    ),
+);
+
+$textContentData = new TextContentData(
+    type: TextContentData::ALLOWED_TYPE,
+    text: 'Please transcribe this audio file.',
+);
+
+$messageData = new MessageData(
+    content: [
+        $textContentData,
+        $audioContentData,
+    ],
+    role: RoleType::USER,
+);
+
+$chatData = new ChatData(
+    messages: [
+        $messageData,
+    ],
+    model: $model,
+);
+
+$response = OpenRouter::chat($chatData);
+```
+
+> [!NOTE]
+> Only `mp3` and `wav` formats are supported for audio inputs.
+>
+> And make sure to provide valid `base64-encoded` audio data.
+
+<a name="cost-request"></a>
+#### Cost Request
+
+To retrieve the cost of a generation, first make a `chat request` and obtain the `generationId`. Then, pass the generationId to the `cost` method:
+
+```php
+use Crustum\OpenRouter\OpenRouter;
+use Crustum\OpenRouter\DTO\ChatData;
+use Crustum\OpenRouter\DTO\MessageData;
+use Crustum\OpenRouter\Types\RoleType;
+
+$content = 'Tell me a story about a rogue AI that falls in love with its creator.';
+$model = 'mistralai/mistral-7b-instruct:free';
+$messageData = new MessageData(
+    content: $content,
+    role: RoleType::USER,
+);
+
+$chatData = new ChatData(
+    messages: [
+        $messageData,
+    ],
+    model: $model,
+    max_tokens: 100,
+);
+
+$chatResponse = OpenRouter::chat($chatData);
+
+if ($chatResponse instanceof \Crustum\OpenRouter\DTO\ResponseData) {
+    $generationId = $chatResponse->id; // generation id which will be passed to costRequest
+
+    $costResponse = OpenRouter::cost($generationId);
+
+    // You can convert the response `toArray` if needed
+    $responseArray = $costResponse->toArray();
+}
+```
+
+<a name="limit-request"></a>
+#### Limit Request
+
+To retrieve rate limit and credits left on the API key:
+
+```php
+use Crustum\OpenRouter\OpenRouter;
+
+$limitResponse = OpenRouter::limits();
+
+// You can convert the response `toArray` if needed
+$responseArray = $limitResponse->toArray();
+```
+
+<a name="using-openrouterrequest-class"></a>
+### Using OpenRouterRequest Class
+
+You can also instantiate the [`OpenRouterRequest`](src/Request/OpenRouterRequest.php) class directly and use its methods:
+
+```php
+use Crustum\OpenRouter\Client\OpenRouterClient;
+use Crustum\OpenRouter\Request\OpenRouterRequest;
+use Crustum\OpenRouter\DTO\ChatData;
+use Cake\Core\Configure;
+
+$client = new OpenRouterClient(
+    Configure::read('OpenRouter.api_key'),
+    Configure::read('OpenRouter.api_endpoint'),
+    Configure::read('OpenRouter.api_timeout'),
+    Configure::read('OpenRouter.title'),
+    Configure::read('OpenRouter.referer'),
+);
+
+$request = new OpenRouterRequest($client);
+
+// Chat Request
+$response = $request->chatRequest($chatData);
+
+// Stream Chat Request
+$streamResponse = $request->chatStreamRequest($chatData);
+
+// Cost Request
+$costResponse = $request->costRequest($generationId);
+
+// Limit Request
+$limitResponse = $request->limitRequest();
+```
+
+## License
+
+Licensed under the [MIT](http://www.opensource.org/licenses/mit-license.php) License. Redistributions of the source code included in this repository must retain the copyright notice found in each file.
+
