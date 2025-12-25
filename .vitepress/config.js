@@ -5,6 +5,8 @@ import { mermaidPlugin } from './plugins/mermaid-simple.js'
 import { pluginsPlugin, generatePluginsMetadata, getPluginsMetadata, getPluginsConfig } from './plugins/plugins.js'
 import { pluginsConfig } from './plugins-config.js'
 import { RECENT_PLUGINS_COUNT } from './constants.js'
+import { readdirSync, statSync } from 'fs'
+import { join, extname } from 'path'
 
 // Generate plugins metadata on config load
 const plugins = generatePluginsMetadata(RECENT_PLUGINS_COUNT)
@@ -31,6 +33,22 @@ function generatePluginsSidebar() {
       items: sidebarItems
     }
   ]
+}
+
+function hasSingleFile(pluginPath) {
+  try {
+    const pluginDir = join(process.cwd(), 'docs', pluginPath.replace(/^\//, ''))
+    if (!statSync(pluginDir).isDirectory()) {
+      return false
+    }
+
+    const files = readdirSync(pluginDir)
+    const mdFiles = files.filter(file => extname(file) === '.md')
+
+    return mdFiles.length === 1
+  } catch (error) {
+    return false
+  }
 }
 
 export default defineConfig({
@@ -205,13 +223,57 @@ export default defineConfig({
                         ]
                     }
                 ],
-                "/plugins/": generatePluginsSidebar()
+                "/plugins/": generatePluginsSidebar(),
+                "/Broadcasting/": [
+                    {
+                        "text": "Broadcasting",
+                        "collapsed": false,
+                        "items": [
+                            { "text": "Home", "link": "/Broadcasting/" },
+                            { "text": "Mercure Broadcasting", "link": "/MercureBroadcasting/" }
+                        ]
+                    }
+                ],
+                "/Notification/": [
+                    {
+                        "text": "Notification",
+                        "collapsed": false,
+                        "items": [
+                            { "text": "Home", "link": "/Notification/" },
+                            { "text": "Modules", "link": "/Notification/modules" }
+                        ]
+                    }
+                ]
             }
 
             // Add sidebar entries for individual plugin pages
+            // Show all plugins for:
+            // 1. Single-file plugins (always)
+            // 2. Multi-file plugins with incomplete sidebars (only 1 item)
+            // Keep manual sidebars for multi-file plugins with 2+ items
             const pluginsList = getPluginsMetadata()
             pluginsList.forEach(plugin => {
-                sidebar[plugin.path] = generatePluginsSidebar()
+                // If plugin has only one file, always show all plugins sidebar
+                if (hasSingleFile(plugin.path)) {
+                    sidebar[plugin.path] = generatePluginsSidebar()
+                }
+                // If plugin has a manual sidebar, check if it's complete (2+ items)
+                else if (sidebar[plugin.path] && Array.isArray(sidebar[plugin.path])) {
+                    const sidebarConfig = sidebar[plugin.path]
+                    // Count total items across all sections
+                    const totalItems = sidebarConfig.reduce((count, section) => {
+                        return count + (Array.isArray(section.items) ? section.items.length : 0)
+                    }, 0)
+                    // If sidebar has only 1 item, it's incomplete - show all plugins instead
+                    if (totalItems <= 1) {
+                        sidebar[plugin.path] = generatePluginsSidebar()
+                    }
+                    // Otherwise (2+ items), keep the manual sidebar as-is
+                }
+                // If plugin has multiple files and no manual sidebar, show all plugins
+                else if (!sidebar[plugin.path]) {
+                    sidebar[plugin.path] = generatePluginsSidebar()
+                }
             })
 
             return sidebar

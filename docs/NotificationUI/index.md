@@ -123,9 +123,13 @@ Options:
 <a name="real-time-broadcasting"></a>
 ## Real-Time Broadcasting
 
-Enable WebSocket broadcasting for instant notification delivery:
+Enable WebSocket broadcasting for instant notification delivery. Supports both Pusher and Mercure broadcasters.
 
-### Hybrid Mode (Database + Broadcasting) - Recommended
+### Pusher Broadcasting
+
+> [!NOTE]
+> Pusher Broadcasting requires the `crustum/notification-broadcasting` and `crustum/broadcasting` plugins. The `broadcaster` option defaults to `'pusher'`.
+
 
 ```php
 <?php $authUser = $this->request->getAttribute('identity'); ?>
@@ -134,6 +138,7 @@ Enable WebSocket broadcasting for instant notification delivery:
     'mode' => 'panel',
     'enablePolling' => true,
     'broadcasting' => [
+        'broadcaster' => 'pusher',
         'userId' => $authUser->getIdentifier(),
         'userName' => $authUser->username ?? 'User',
         'pusherKey' => 'app-key',
@@ -144,14 +149,39 @@ Enable WebSocket broadcasting for instant notification delivery:
 ]) ?>
 ```
 
+### Mercure Broadcasting
+
+
+> [!NOTE]
+> Mercure Broadcasting requires the `crustum/notification-broadcasting` and `crustum/mercure-broadcasting` plugins.
+
+
+```php
+<?php $authUser = $this->request->getAttribute('identity'); ?>
+
+<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
+    'mode' => 'panel',
+    'enablePolling' => true,
+    'broadcasting' => [
+        'broadcaster' => 'mercure',
+        'userId' => $authUser->getIdentifier(),
+        'userName' => $authUser->username ?? 'User',
+        'mercureUrl' => '/.well-known/mercure',
+        'authEndpoint' => '/broadcasting/auth',
+    ],
+]) ?>
+```
+
 This mode combines database persistence with real-time WebSocket delivery for the best user experience.
 
 ### Broadcasting Only (No Database)
 
+**Pusher:**
 ```php
 <?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
     'enablePolling' => false,
     'broadcasting' => [
+        'broadcaster' => 'pusher',
         'userId' => $authUser->getIdentifier(),
         'userName' => $authUser->username ?? 'User',
         'pusherKey' => env('PUSHER_APP_KEY'),
@@ -162,7 +192,18 @@ This mode combines database persistence with real-time WebSocket delivery for th
 ]) ?>
 ```
 
-> **Note:** Broadcasting requires the `cakephp/broadcasting-notification` plugin.
+**Mercure:**
+```php
+<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
+    'enablePolling' => false,
+    'broadcasting' => [
+        'broadcaster' => 'mercure',
+        'userId' => $authUser->getIdentifier(),
+        'mercureUrl' => env('MERCURE_PUBLIC_URL', '/.well-known/mercure'),
+        'authEndpoint' => '/broadcasting/auth',
+    ],
+]) ?>
+```
 
 <a name="notification-data-fields"></a>
 ## Notification Data Fields

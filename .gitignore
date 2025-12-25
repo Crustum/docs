@@ -24,3 +24,6 @@
 Icon?
 ehthumbs.db
 Thumbs.db
+
+# Dev files
+/dev.cmd

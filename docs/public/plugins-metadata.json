@@ -4,83 +4,103 @@
     "description": "Advanced job coordination system for CakePHP Queue. Handle parallel batches, sequential chains, saga compensation patterns, and dynamic workflow execution with proper failure handling.",
     "slug": "BatchQueue",
     "path": "/BatchQueue/",
-    "name": "BatchQueue"
+    "name": "BatchQueue",
+    "githubUrl": "https://github.com/crustum/batch-queue"
   },
   {
     "title": "Broadcasting Plugin",
     "description": "Real-time broadcasting system for CakePHP applications. WebSocket support, event broadcasting, and real-time communication with multiple driver support.",
     "slug": "Broadcasting",
     "path": "/Broadcasting/",
-    "name": "Broadcasting"
+    "name": "Broadcasting",
+    "githubUrl": "https://github.com/Crustum/Broadcasting"
   },
   {
     "title": "BroadcastingNotification Plugin",
     "description": "Integrated notification and broadcasting system combining real-time messaging with notification delivery for comprehensive communication solutions.",
     "slug": "BroadcastingNotification",
     "path": "/BroadcastingNotification/",
-    "name": "BroadcastingNotification"
+    "name": "BroadcastingNotification",
+    "githubUrl": "https://github.com/Crustum/BroadcastingNotification"
+  },
+  {
+    "title": "MercureBroadcasting Plugin",
+    "description": "Mercure broadcaster driver for the CakePHP Broadcasting plugin. Provides Server-Sent Events (SSE) based broadcasting using the Mercure protocol.",
+    "slug": "MercureBroadcasting",
+    "path": "/MercureBroadcasting/",
+    "name": "MercureBroadcasting",
+    "githubUrl": "https://github.com/crustum/mercure-broadcasting"
   },
   {
     "title": "Notification Plugin",
     "description": "Comprehensive notification system for CakePHP applications. Send emails, SMS, push notifications, and in-app alerts with flexible delivery channels and templating.",
     "slug": "Notification",
     "path": "/Notification/",
-    "name": "Notification"
+    "name": "Notification",
+    "githubUrl": "https://github.com/Crustum/Notification"
   },
   {
     "title": "NotificationUI Plugin",
     "description": "User interface components for notification management. Create beautiful notification displays, modals, and interactive notification centers.",
     "slug": "NotificationUI",
     "path": "/NotificationUI/",
-    "name": "NotificationUI"
+    "name": "NotificationUI",
+    "githubUrl": "https://github.com/Crustum/NotificationUI"
   },
   {
     "title": "OpenRouter Plugin",
     "description": "Easy-to-use interface for integrating OpenRouter into CakePHP applications. Unified interface for Large Language Models with type-safe DTOs for all API interactions including chat completions, streaming, tool calling, and more.",
     "slug": "OpenRouter",
     "path": "/OpenRouter/",
-    "name": "OpenRouter"
+    "name": "OpenRouter",
+    "githubUrl": "https://github.com/crustum/openrouter"
   },
   {
     "title": "PluginManifest Plugin",
     "description": "Plugin asset installation and publishing system for CakePHP 5.x. Standardized mechanism for plugins to distribute optional assets including configuration files, migrations, templates, and bootstrap code with smart duplicate detection.",
     "slug": "PluginManifest",
     "path": "/PluginManifest/",
-    "name": "PluginManifest"
+    "name": "PluginManifest",
+    "githubUrl": "https://github.com/skie/plugin-manifest"
   },
   {
     "title": "RocketChatNotification Plugin",
     "description": "Seamless integration with RocketChat for team notifications. Send messages, alerts, and updates directly to RocketChat channels and users.",
     "slug": "RocketChatNotification",
     "path": "/RocketChatNotification/",
-    "name": "RocketChatNotification"
+    "name": "RocketChatNotification",
+    "githubUrl": "https://github.com/Crustum/RocketchatNotification"
   },
   {
     "title": "SevenNotification Plugin",
     "description": "SMS notification service integration using the 7SMS API. Send text messages and SMS alerts to users with reliable delivery tracking.",
     "slug": "SevenNotification",
     "path": "/SevenNotification/",
-    "name": "SevenNotification"
+    "name": "SevenNotification",
+    "githubUrl": "https://github.com/Crustum/SevenNotification"
   },
   {
     "title": "SlackNotification Plugin",
     "description": "Complete Slack integration for team notifications. Send messages, alerts, and rich formatted content to Slack channels and direct messages.",
     "slug": "SlackNotification",
     "path": "/SlackNotification/",
-    "name": "SlackNotification"
+    "name": "SlackNotification",
+    "githubUrl": "https://github.com/Crustum/SlackNotification"
   },
   {
     "title": "TelegramNotification Plugin",
     "description": "Telegram bot integration for notifications. Send messages, alerts, and media to Telegram channels and groups with advanced formatting support.",
     "slug": "TelegramNotification",
     "path": "/TelegramNotification/",
-    "name": "TelegramNotification"
+    "name": "TelegramNotification",
+    "githubUrl": "https://github.com/Crustum/TelegramNotification"
   },
   {
     "title": "Temporal Plugin",
     "description": "Workflow orchestration for CakePHP applications using Temporal. Build distributed, scalable, durable, and highly available workflows for asynchronous long-running business logic in microservice architectures.",
     "slug": "Temporal",
     "path": "/Temporal/",
-    "name": "Temporal"
+    "name": "Temporal",
+    "githubUrl": "https://github.com/Crustum/cakephp-temporal"
   }
 ]

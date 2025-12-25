@@ -33,7 +33,8 @@ export function generatePluginsMetadata(recentCount = 6) {
       description: plugin.details,
       slug: plugin.name,
       path: plugin.link,
-      name: plugin.name
+      name: plugin.name,
+      githubUrl: plugin.githubUrl || null
     }))
 
     // For recent plugins, use original order (first N from config)
