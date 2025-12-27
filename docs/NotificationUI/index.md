@@ -5,7 +5,7 @@
 
 The NotificationUI plugin provides UI components for the CakePHP Notification system with real-time broadcasting support. It includes a modern notification bell widget with dropdown or side panel display modes.
 
-The plugin provides a modern notification bell widget with dropdown or side panel display modes, automatic polling for new notifications, real-time broadcasting support, and a complete JavaScript API for managing notifications.
+The plugin uses Alpine.js for reactive state management and provides a modern notification bell widget with dropdown or side panel display modes, automatic polling for new notifications, real-time broadcasting support, and a complete JavaScript API for managing notifications.
 
 <a name="installation"></a>
 ## Installation
@@ -15,6 +15,7 @@ The plugin provides a modern notification bell widget with dropdown or side pane
 - PHP 8.1+
 - CakePHP 5.0+
 - CakePHP Notification Plugin
+- Alpine.js (automatically loaded by the plugin)
 
 ### Load the Plugin
 
@@ -42,11 +43,11 @@ Add CSRF token to your layout's `<head>`:
 <meta name="csrfToken" content="<?= $this->request->getAttribute('csrfToken') ?>">
 ```
 
-Add notification bell to your navigation:
+Add notification bell to your navigation using the Cell:
 
 ```php
 <li class="nav-item">
-    <?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
+    <?= $this->cell('Crustum/NotificationUI.NotificationBell', [
         'mode' => 'panel',
     ]) ?>
 </li>
@@ -55,18 +56,20 @@ Add notification bell to your navigation:
 <a name="bell-widget"></a>
 ## Bell Widget
 
-The bell element automatically loads required CSS/JS and initializes the widget.
+The `NotificationBellCell` automatically loads required CSS/JS (including Alpine.js) and initializes the reactive notification store. The widget uses Alpine.js for reactive state management and server-side PHP templates for rendering.
 
-Basic usage:
+**Basic usage:**
 
 ```php
-<?= $this->element('Crustum/NotificationUI.notifications/bell_icon') ?>
+<?= $this->cell('Crustum/NotificationUI.NotificationBell') ?>
 ```
 
-With options:
+The Cell automatically calculates unread count from the database if not provided, making it ideal for server-side rendering scenarios.
+
+**With options:**
 
 ```php
-<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
+<?= $this->cell('Crustum/NotificationUI.NotificationBell', [
     'mode' => 'panel',
     'position' => 'left',
     'theme' => 'dark',
@@ -82,7 +85,7 @@ With options:
 Traditional dropdown menu attached to the bell icon:
 
 ```php
-<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
+<?= $this->cell('Crustum/NotificationUI.NotificationBell', [
     'mode' => 'dropdown',
     'position' => 'right',
 ]) ?>
@@ -93,7 +96,7 @@ Traditional dropdown menu attached to the bell icon:
 Sticky side panel (like Filament Notifications):
 
 ```php
-<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
+<?= $this->cell('Crustum/NotificationUI.NotificationBell', [
     'mode' => 'panel',
 ]) ?>
 ```
@@ -102,7 +105,7 @@ Sticky side panel (like Filament Notifications):
 ## Configuration Options
 
 ```php
-<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
+<?= $this->cell('Crustum/NotificationUI.NotificationBell', [
     'mode' => 'panel',
     'position' => 'right',
     'theme' => 'dark',
@@ -115,10 +118,15 @@ Sticky side panel (like Filament Notifications):
 Options:
 - `mode` - 'dropdown' or 'panel' (default: 'dropdown')
 - `position` - 'left' or 'right' (default: 'right', dropdown only)
-- `theme` - 'light' or 'dark' (default: 'light')
+- `theme` - 'light', 'dark', or `null` for auto-detect (default: auto-detect)
 - `pollInterval` - Poll every N milliseconds (default: 30000)
 - `enablePolling` - Enable/disable database polling (default: true)
 - `perPage` - Notifications per page (default: 10)
+- `unreadCount` - Initial unread count (default: `null` - automatically calculated by Cell from database)
+- `markReadOnClick` - Mark notification as read when clicked (default: true)
+- `userId` - User ID for broadcasting (default: `null` - extracted from authenticated identity)
+- `userName` - User name for broadcasting (default: `null`)
+- `broadcasting` - Broadcasting configuration array or `false` to disable (default: `false`)
 
 <a name="real-time-broadcasting"></a>
 ## Real-Time Broadcasting
@@ -134,7 +142,7 @@ Enable WebSocket broadcasting for instant notification delivery. Supports both P
 ```php
 <?php $authUser = $this->request->getAttribute('identity'); ?>
 
-<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
+<?= $this->cell('Crustum/NotificationUI.NotificationBell', [
     'mode' => 'panel',
     'enablePolling' => true,
     'broadcasting' => [
@@ -159,7 +167,7 @@ Enable WebSocket broadcasting for instant notification delivery. Supports both P
 ```php
 <?php $authUser = $this->request->getAttribute('identity'); ?>
 
-<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
+<?= $this->cell('Crustum/NotificationUI.NotificationBell', [
     'mode' => 'panel',
     'enablePolling' => true,
     'broadcasting' => [
@@ -178,7 +186,7 @@ This mode combines database persistence with real-time WebSocket delivery for th
 
 **Pusher:**
 ```php
-<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
+<?= $this->cell('Crustum/NotificationUI.NotificationBell', [
     'enablePolling' => false,
     'broadcasting' => [
         'broadcaster' => 'pusher',
@@ -194,7 +202,7 @@ This mode combines database persistence with real-time WebSocket delivery for th
 
 **Mercure:**
 ```php
-<?= $this->element('Crustum/NotificationUI.notifications/bell_icon', [
+<?= $this->cell('Crustum/NotificationUI.NotificationBell', [
     'enablePolling' => false,
     'broadcasting' => [
         'broadcaster' => 'mercure',
@@ -215,9 +223,21 @@ When creating notifications, use these fields in your `toDatabase()` method:
 - `message` - Notification message
 
 **Optional:**
-- `action_url` - Makes notification clickable
+- `action_url` - Makes notification clickable (redirects on click)
 - `icon` - Built-in SVG icon: `bell`, `post`, `user`, `message`, `alert`, `check`, `info`
 - `icon_class` - CSS class: `fa fa-bell`, `bi bi-bell`, `ti ti-bell`
+- `actions` - Array of action objects with `name`, `label`, `url`, `event`, `icon`, etc.
+
+**Action Object Structure:**
+- `name` - Action identifier
+- `label` - Display text
+- `url` - URL to navigate to (or use `event` for custom events)
+- `event` - Custom event name to dispatch
+- `icon` - Icon class (e.g., `fa fa-check`)
+- `color` or `type` - Button style (`success`, `danger`, `warning`, `info`)
+- `openInNewTab` - Open URL in new tab (default: false)
+- `shouldClose` - Close dropdown/panel after action (default: false)
+- `isDisabled` - Disable the action button
 
 Example:
 
@@ -229,6 +249,21 @@ public function toDatabase(): array
         'message' => "Your order #{$this->order->id} has been shipped!",
         'action_url' => "/orders/{$this->order->id}",
         'icon' => 'post',
+        'actions' => [
+            [
+                'name' => 'view',
+                'label' => 'View Order',
+                'url' => "/orders/{$this->order->id}",
+                'icon' => 'fa fa-eye',
+            ],
+            [
+                'name' => 'track',
+                'label' => 'Track Package',
+                'url' => "/orders/{$this->order->id}/track",
+                'icon' => 'fa fa-truck',
+                'openInNewTab' => true,
+            ],
+        ],
     ];
 }
 ```
@@ -256,7 +291,7 @@ All endpoints return JSON and require authentication:
 <a name="javascript-events"></a>
 ## JavaScript Events
 
-Listen for notification events:
+Listen for notification events. The system dispatches custom events for notification lifecycle:
 
 ```javascript
 window.addEventListener('notification:marked-read', (e) => {
@@ -276,63 +311,133 @@ window.addEventListener('notification:deleted', (e) => {
 });
 ```
 
+### Alpine.js Store Events
+
+The Alpine.js store also provides reactive updates. Access the store to observe changes:
+
+```javascript
+// Watch for store changes
+Alpine.effect(() => {
+    const store = Alpine.store('notifications');
+    console.log('Unread count:', store.unreadCount);
+    console.log('Items:', store.items);
+});
+```
+
 <a name="template-overloading"></a>
 ## Template Overloading
 
+The notification system uses server-side PHP templates with Alpine.js directives for reactive rendering. The `NotificationBellCell` renders elements internally, so customization is done by overriding element templates.
+
 ### PHP Element Templates
 
-Override PHP templates by creating files in your app's `templates/element/` directory:
+The notification system uses server-side PHP templates with Alpine.js directives for reactive rendering. Override templates by creating files in your app's `templates/element/` directory:
 
 ```
 templates/element/Crustum/NotificationUI/notifications/
-  ├── bell_icon.php         # Main bell icon and container
-  ├── item.php              # Single notification item
-  ├── list.php              # Notification list wrapper
-  └── empty.php             # Empty state display
+  ├── templates.php         # Alpine.js notification templates (loading, empty, items, load more)
+  └── bell_icon.php         # Bell icon element (used by Cell)
 ```
 
-Example override:
+**Override notification templates:**
+
+Copy `plugins/NotificationUI/templates/element/notifications/templates.php` to:
+```
+templates/element/Crustum/NotificationUI/notifications/templates.php
+```
+
+This template contains Alpine.js directives for:
+- Loading state (`x-if="isLoading"`)
+- Empty state (`x-if="!isLoading && items.length === 0"`)
+- Notification items (`x-for="notification in items"`)
+- Load more button (`x-if="hasMore && !isLoading"`)
+
+**Example override:**
 
 ```php
-templates/element/Crustum/NotificationUI/notifications/item.php
+<?php
+/**
+ * Custom notification templates
+ */
+?>
+
+<template x-if="isLoading">
+    <div class="custom-loading">Loading notifications...</div>
+</template>
+
+<template x-for="notification in items" :key="notification.id">
+    <div class="custom-notification-item"
+         x-data="notificationItem(getNotificationData(notification))">
+        <div class="custom-title" x-text="title"></div>
+        <div class="custom-message" x-text="message"></div>
+    </div>
+</template>
 ```
 
-### JavaScript Template Override
+### Alpine.js Store Access
 
-Override JavaScript templates for complete rendering control:
+Access the notification store programmatically:
 
 ```javascript
-window.CakeNotification.renderer.registerTemplate('notification', (notification, renderer) => {
-    return `
-        <div class="custom-notification">
-            <h4>${notification.data.title}</h4>
-            <p>${notification.data.message}</p>
-        </div>
-    `;
+// Get the Alpine.js store
+const store = Alpine.store('notifications');
+
+// Add a notification
+store.addNotification({
+    id: 123,
+    title: 'New Notification',
+    message: 'This is a test',
+    read_at: null,
+    created_at: new Date().toISOString()
 });
+
+// Mark as read
+await store.markAsRead(123);
+
+// Mark all as read
+await store.markAllAsRead();
+
+// Load more notifications
+await store.loadMore();
+
+// Toggle dropdown/panel
+store.toggle();
 ```
 
-Available JavaScript templates:
-- `notification` - Complete notification item wrapper
-- `notificationContent` - Notification content area
-- `notificationIcon` - Icon rendering
-- `notificationActions` - Actions container
-- `notificationAction` - Single action button
-- `loadMoreButton` - Load more button
-- `emptyState` - Empty state display
-- `errorState` - Error state display
-- `loadingState` - Loading state display
+### Using CakeNotification Builder
 
-Register multiple templates:
+The `CakeNotification` fluent API still works and integrates with the Alpine.js store:
 
 ```javascript
-window.CakeNotification.renderer.registerTemplates({
-    notification: (notification, renderer) => {
-        return `<div class="my-notification">${notification.data.title}</div>`;
-    },
-    emptyState: () => {
-        return `<div class="empty">No notifications yet!</div>`;
-    }
-});
+CakeNotification.make()
+    .title('Order Shipped')
+    .message('Your order has been shipped!')
+    .actionUrl('/orders/123')
+    .send();
 ```
+
+<a name="alpinejs-architecture"></a>
+## Alpine.js Architecture
+
+The notification system is built on Alpine.js for reactive state management. The architecture consists of:
+
+### Alpine.js Store
+
+The `notifications` store (`Alpine.store('notifications')`) provides:
+- `items` - Array of notification objects
+- `unreadCount` - Reactive unread count
+- `isLoading` - Loading state
+- `hasMore` - Whether more notifications are available
+- `isOpen` - Whether dropdown/panel is open
+- `currentPage` - Current pagination page
+
+### Alpine.js Components
+
+- `notificationBell` - Bell icon component with theme detection
+- `notificationList` - List container with pagination
+- `notificationItem` - Individual notification item with actions
+
+### Broadcasting Modules
+
+Broadcasting modules (`PusherModule`, `MercureModule`) extend `BroadcastingBase` and automatically integrate with the Alpine.js store for real-time updates.
 

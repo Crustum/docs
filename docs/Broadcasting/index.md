@@ -514,7 +514,7 @@ return [
     'default' => 'pusher',
     'connections' => [
         'pusher' => [
-            'driver' => 'pusher',
+            'className' => 'Crustum/Broadcasting.Pusher',
         ],
     ],
     'queue_adapter' => \Crustum\Broadcasting\Queue\CakeQueueAdapter::class,
