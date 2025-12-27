@@ -1,5 +1,13 @@
 [
   {
+    "title": "BlazeCast Plugin",
+    "description": "Self-hosted WebSocket server for CakePHP applications that implements the Pusher protocol. Enables real-time bidirectional communication with support for public, private, and presence channels, Redis PubSub for horizontal scaling, and seamless integration with Pusher JavaScript libraries and Laravel Echo.",
+    "slug": "BlazeCast",
+    "path": "/BlazeCast/",
+    "name": "BlazeCast",
+    "githubUrl": "https://github.com/crustum/blazecast"
+  },
+  {
     "title": "MercureBroadcasting Plugin",
     "description": "Mercure broadcaster driver for the CakePHP Broadcasting plugin. Provides Server-Sent Events (SSE) based broadcasting using the Mercure protocol.",
     "slug": "MercureBroadcasting",
@@ -86,13 +94,5 @@
     "path": "/SevenNotification/",
     "name": "SevenNotification",
     "githubUrl": "https://github.com/Crustum/SevenNotification"
-  },
-  {
-    "title": "SlackNotification Plugin",
-    "description": "Complete Slack integration for team notifications. Send messages, alerts, and rich formatted content to Slack channels and direct messages.",
-    "slug": "SlackNotification",
-    "path": "/SlackNotification/",
-    "name": "SlackNotification",
-    "githubUrl": "https://github.com/Crustum/SlackNotification"
   }
 ]

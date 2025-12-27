@@ -5,6 +5,13 @@
  */
 export const pluginsConfig = [
   {
+    title: 'BlazeCast Plugin',
+    details: 'Self-hosted WebSocket server for CakePHP applications that implements the Pusher protocol. Enables real-time bidirectional communication with support for public, private, and presence channels, Redis PubSub for horizontal scaling, and seamless integration with Pusher JavaScript libraries and Laravel Echo.',
+    link: '/BlazeCast/',
+    name: 'BlazeCast',
+    githubUrl: 'https://github.com/crustum/blazecast'
+  },
+  {
     title: 'MercureBroadcasting Plugin',
     details: 'Mercure broadcaster driver for the CakePHP Broadcasting plugin. Provides Server-Sent Events (SSE) based broadcasting using the Mercure protocol.',
     link: '/MercureBroadcasting/',

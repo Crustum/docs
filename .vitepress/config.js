@@ -300,7 +300,7 @@ export default defineConfig({
         // },
         footer: {
             message: 'Released under the MIT License.',
-            copyright: 'Copyright © 2008-2025 Evgeny Tomenko'
+            copyright: 'Copyright © 2008-2026 Evgeny Tomenko'
         },
         lastUpdated: {
             text: 'Updated at',

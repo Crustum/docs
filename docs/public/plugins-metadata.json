@@ -8,6 +8,14 @@
     "githubUrl": "https://github.com/crustum/batch-queue"
   },
   {
+    "title": "BlazeCast Plugin",
+    "description": "Self-hosted WebSocket server for CakePHP applications that implements the Pusher protocol. Enables real-time bidirectional communication with support for public, private, and presence channels, Redis PubSub for horizontal scaling, and seamless integration with Pusher JavaScript libraries and Laravel Echo.",
+    "slug": "BlazeCast",
+    "path": "/BlazeCast/",
+    "name": "BlazeCast",
+    "githubUrl": "https://github.com/crustum/blazecast"
+  },
+  {
     "title": "Broadcasting Plugin",
     "description": "Real-time broadcasting system for CakePHP applications. WebSocket support, event broadcasting, and real-time communication with multiple driver support.",
     "slug": "Broadcasting",
