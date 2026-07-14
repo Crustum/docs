@@ -32,6 +32,14 @@
     "githubUrl": "https://github.com/Crustum/BroadcastingNotification"
   },
   {
+    "title": "Essentia Plugin",
+    "description": "Agent-optimized output for PHP tools in CakePHP projects. Detects AI agent environments and replaces verbose PHPUnit, Pest, Paratest, PHPStan, Rector, and PHPCS output with compact structured JSON. Cleans CakePHP console output automatically with zero configuration.",
+    "slug": "Essentia",
+    "path": "/Essentia/",
+    "name": "Essentia",
+    "githubUrl": "https://github.com/crustum/essentia"
+  },
+  {
     "title": "MercureBroadcasting Plugin",
     "description": "Mercure broadcaster driver for the CakePHP Broadcasting plugin. Provides Server-Sent Events (SSE) based broadcasting using the Mercure protocol.",
     "slug": "MercureBroadcasting",

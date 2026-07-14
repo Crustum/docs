@@ -234,6 +234,15 @@ export default defineConfig({
                         ]
                     }
                 ],
+                "/Essentia/": [
+                    {
+                        "text": "Essentia",
+                        "collapsed": false,
+                        "items": [
+                            { "text": "Home", "link": "/Essentia/" }
+                        ]
+                    }
+                ],
                 "/Notification/": [
                     {
                         "text": "Notification",

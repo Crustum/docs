@@ -61,6 +61,13 @@ export const pluginsConfig = [
     githubUrl: 'https://github.com/Crustum/BroadcastingNotification'
   },
   {
+    title: 'Essentia Plugin',
+    details: 'Agent-optimized output for PHP tools in CakePHP projects. Detects AI agent environments and replaces verbose PHPUnit, Pest, Paratest, PHPStan, Rector, and PHPCS output with compact structured JSON. Cleans CakePHP console output automatically with zero configuration.',
+    link: '/Essentia/',
+    name: 'Essentia',
+    githubUrl: 'https://github.com/crustum/essentia'
+  },
+  {
     title: 'Notification Plugin',
     details: 'Comprehensive notification system for CakePHP applications. Send emails, SMS, push notifications, and in-app alerts with flexible delivery channels and templating.',
     link: '/Notification/',
