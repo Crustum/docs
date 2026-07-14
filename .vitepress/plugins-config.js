@@ -5,6 +5,13 @@
  */
 export const pluginsConfig = [
   {
+    title: 'Essentia Plugin',
+    details: 'Agent-optimized output for PHP tools in CakePHP projects. Detects AI agent environments and replaces verbose PHPUnit, Pest, Paratest, PHPStan, Rector, and PHPCS output with compact structured JSON. Cleans CakePHP console output automatically with zero configuration.',
+    link: '/Essentia/',
+    name: 'Essentia',
+    githubUrl: 'https://github.com/crustum/essentia'
+  },
+  {
     title: 'BlazeCast Plugin',
     details: 'Self-hosted WebSocket server for CakePHP applications that implements the Pusher protocol. Enables real-time bidirectional communication with support for public, private, and presence channels, Redis PubSub for horizontal scaling, and seamless integration with Pusher JavaScript libraries and Laravel Echo.',
     link: '/BlazeCast/',
@@ -59,13 +66,6 @@ export const pluginsConfig = [
     link: '/BroadcastingNotification/',
     name: 'BroadcastingNotification',
     githubUrl: 'https://github.com/Crustum/BroadcastingNotification'
-  },
-  {
-    title: 'Essentia Plugin',
-    details: 'Agent-optimized output for PHP tools in CakePHP projects. Detects AI agent environments and replaces verbose PHPUnit, Pest, Paratest, PHPStan, Rector, and PHPCS output with compact structured JSON. Cleans CakePHP console output automatically with zero configuration.',
-    link: '/Essentia/',
-    name: 'Essentia',
-    githubUrl: 'https://github.com/crustum/essentia'
   },
   {
     title: 'Notification Plugin',
