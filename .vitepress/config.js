@@ -206,9 +206,9 @@ export default defineConfig({
       setTimeout(processEdgeLabels, 2000);
     `]
     ],
-    rewrites: {
-        ':version/:slug*': ':version/:slug*'
-    },
+    //rewrites: {
+    //    ':version/:slug*': ':version/:slug*'
+    //},
     themeConfig: {
         logo: '/logo.svg',
         // start-sidebar
@@ -311,6 +311,9 @@ export default defineConfig({
         }
     },
     vite: {
+        resolve: {
+            preserveSymlinks: true
+        },
         plugins: [
             pluginsPlugin(RECENT_PLUGINS_COUNT)
         ]
@@ -326,6 +329,11 @@ export default defineConfig({
     },
     markdown: {
         lineNumbers: true,
+        languages: ['dotenv', 'yaml'],
+        languageAlias: {
+            env: 'dotenv',
+            neon: 'yaml'
+        },
         config: (md) => {
             md.use(versionReplacer)
 
