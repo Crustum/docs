@@ -1,18 +1,5 @@
 # Essentia — Agent-Optimized Output
 
-- [Introduction](#introduction)
-- [Installation](#installation)
-- [How It Works](#how-it-works)
-- [Supported Tools](#supported-tools)
-- [Before & After](#before--after)
-- [PHPUnit, Pest & Paratest](#phpunit-pest--paratest)
-- [PHPStan](#phpstan)
-- [Rector](#rector)
-- [PHPCS](#phpcs)
-- [CakePHP Console](#cakephp-console)
-- [Environment Variables](#environment-variables)
-- [Disabling Essentia](#disabling-essentia)
-
 <a name="introduction"></a>
 ## Introduction
 
