@@ -1,11 +1,51 @@
 [
   {
+    "title": "Tessera Plugin",
+    "description": "Full OAuth2 server for CakePHP built on League OAuth2 Server. Authorization codes, client credentials, device grant, and personal access tokens with cakephp/authentication.",
+    "slug": "Tessera",
+    "path": "/Tessera/",
+    "name": "Tessera",
+    "githubUrl": "https://github.com/Crustum/tessera"
+  },
+  {
+    "title": "Inspector Plugin",
+    "description": "Package and stack detection for CakePHP projects. Reads lockfiles and optionally source to report dependencies, frontend stack, AI agents, editors, and codebase conventions.",
+    "slug": "Inspector",
+    "path": "/Inspector/",
+    "name": "Inspector",
+    "githubUrl": "https://github.com/Crustum/inspector"
+  },
+  {
     "title": "Essentia Plugin",
     "description": "Agent-optimized output for PHP tools in CakePHP projects. Detects AI agent environments and replaces verbose PHPUnit, Pest, Paratest, PHPStan, Rector, and PHPCS output with compact structured JSON. Cleans CakePHP console output automatically with zero configuration.",
     "slug": "Essentia",
     "path": "/Essentia/",
     "name": "Essentia",
     "githubUrl": "https://github.com/crustum/essentia"
+  },
+  {
+    "title": "Prompts Plugin",
+    "description": "Laravel Prompts wrappers for CakePHP Console. Interactive CLI forms via Crustum/Prompts helpers, with native Windows ConsoleIo fallbacks when TTY prompts are unavailable.",
+    "slug": "Prompts",
+    "path": "/Prompts/",
+    "name": "Prompts",
+    "githubUrl": "https://github.com/Crustum/prompts"
+  },
+  {
+    "title": "JsonSchema Plugin",
+    "description": "Fluent JSON Schema builder for PHP. Describe structured inputs and outputs—especially tool and agent schemas—using a small expressive API under Crustum\\JsonSchema.",
+    "slug": "JsonSchema",
+    "path": "/JsonSchema/",
+    "name": "JsonSchema",
+    "githubUrl": "https://github.com/Crustum/json-schema"
+  },
+  {
+    "title": "Saloon Plugin",
+    "description": "Saloon v4 HTTP client integration for CakePHP 5. Object-oriented connectors and requests, Bake generators, testing helpers, caching, rate limiting, and CakePHP event bridges.",
+    "slug": "Saloon",
+    "path": "/Saloon/",
+    "name": "Saloon",
+    "githubUrl": "https://github.com/Crustum/saloon"
   },
   {
     "title": "BlazeCast Plugin",
@@ -54,45 +94,5 @@
     "path": "/BatchQueue/",
     "name": "BatchQueue",
     "githubUrl": "https://github.com/crustum/batch-queue"
-  },
-  {
-    "title": "Broadcasting Plugin",
-    "description": "Real-time broadcasting system for CakePHP applications. WebSocket support, event broadcasting, and real-time communication with multiple driver support.",
-    "slug": "Broadcasting",
-    "path": "/Broadcasting/",
-    "name": "Broadcasting",
-    "githubUrl": "https://github.com/Crustum/Broadcasting"
-  },
-  {
-    "title": "BroadcastingNotification Plugin",
-    "description": "Integrated notification and broadcasting system combining real-time messaging with notification delivery for comprehensive communication solutions.",
-    "slug": "BroadcastingNotification",
-    "path": "/BroadcastingNotification/",
-    "name": "BroadcastingNotification",
-    "githubUrl": "https://github.com/Crustum/BroadcastingNotification"
-  },
-  {
-    "title": "Notification Plugin",
-    "description": "Comprehensive notification system for CakePHP applications. Send emails, SMS, push notifications, and in-app alerts with flexible delivery channels and templating.",
-    "slug": "Notification",
-    "path": "/Notification/",
-    "name": "Notification",
-    "githubUrl": "https://github.com/Crustum/Notification"
-  },
-  {
-    "title": "NotificationUI Plugin",
-    "description": "User interface components for notification management. Create beautiful notification displays, modals, and interactive notification centers.",
-    "slug": "NotificationUI",
-    "path": "/NotificationUI/",
-    "name": "NotificationUI",
-    "githubUrl": "https://github.com/Crustum/NotificationUI"
-  },
-  {
-    "title": "RocketChatNotification Plugin",
-    "description": "Seamless integration with RocketChat for team notifications. Send messages, alerts, and updates directly to RocketChat channels and users.",
-    "slug": "RocketChatNotification",
-    "path": "/RocketChatNotification/",
-    "name": "RocketChatNotification",
-    "githubUrl": "https://github.com/Crustum/RocketchatNotification"
   }
 ]

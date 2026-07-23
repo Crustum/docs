@@ -6,6 +6,8 @@
     "vue": "^3.5.21"
   },
   "scripts": {
+    "dev": "node scripts/vitepress.mjs dev",
+    "build": "node scripts/vitepress.mjs build",
     "docs:dev": "node scripts/vitepress.mjs dev",
     "docs:build": "node scripts/vitepress.mjs build",
     "docs:preview": "node scripts/vitepress.mjs preview"

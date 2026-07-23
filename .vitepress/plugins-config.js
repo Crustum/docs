@@ -2,14 +2,52 @@
  * Central plugins configuration
  * This list defines all available plugins with their metadata
  * Used by both the home page features and the plugins index page
+ *
+ * Order matters: the first RECENT_PLUGINS_COUNT entries (see constants.js)
+ * appear as "recent" on the home page. Put newly documented plugins at the top.
  */
 export const pluginsConfig = [
+  {
+    title: 'Tessera Plugin',
+    details: 'Full OAuth2 server for CakePHP built on League OAuth2 Server. Authorization codes, client credentials, device grant, and personal access tokens with cakephp/authentication.',
+    link: '/Tessera/',
+    name: 'Tessera',
+    githubUrl: 'https://github.com/Crustum/tessera'
+  },
+  {
+    title: 'Inspector Plugin',
+    details: 'Package and stack detection for CakePHP projects. Reads lockfiles and optionally source to report dependencies, frontend stack, AI agents, editors, and codebase conventions.',
+    link: '/Inspector/',
+    name: 'Inspector',
+    githubUrl: 'https://github.com/Crustum/inspector'
+  },
   {
     title: 'Essentia Plugin',
     details: 'Agent-optimized output for PHP tools in CakePHP projects. Detects AI agent environments and replaces verbose PHPUnit, Pest, Paratest, PHPStan, Rector, and PHPCS output with compact structured JSON. Cleans CakePHP console output automatically with zero configuration.',
     link: '/Essentia/',
     name: 'Essentia',
     githubUrl: 'https://github.com/crustum/essentia'
+  },
+  {
+    title: 'Prompts Plugin',
+    details: 'Laravel Prompts wrappers for CakePHP Console. Interactive CLI forms via Crustum/Prompts helpers, with native Windows ConsoleIo fallbacks when TTY prompts are unavailable.',
+    link: '/Prompts/',
+    name: 'Prompts',
+    githubUrl: 'https://github.com/Crustum/prompts'
+  },
+  {
+    title: 'JsonSchema Plugin',
+    details: 'Fluent JSON Schema builder for PHP. Describe structured inputs and outputs—especially tool and agent schemas—using a small expressive API under Crustum\\JsonSchema.',
+    link: '/JsonSchema/',
+    name: 'JsonSchema',
+    githubUrl: 'https://github.com/Crustum/json-schema'
+  },
+  {
+    title: 'Saloon Plugin',
+    details: 'Saloon v4 HTTP client integration for CakePHP 5. Object-oriented connectors and requests, Bake generators, testing helpers, caching, rate limiting, and CakePHP event bridges.',
+    link: '/Saloon/',
+    name: 'Saloon',
+    githubUrl: 'https://github.com/Crustum/saloon'
   },
   {
     title: 'BlazeCast Plugin',
@@ -110,4 +148,3 @@ export const pluginsConfig = [
     githubUrl: 'https://github.com/Crustum/TelegramNotification'
   }
 ]
-

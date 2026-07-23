@@ -613,9 +613,33 @@ public function join(EntityInterface $user, ?EntityInterface $model = null): arr
 <a name="channel-authorization-routes"></a>
 ### Channel Authorization Routes
 
-When broadcasting is enabled, CakePHP automatically registers the `/broadcasting/auth` route to handle authorization requests. The `/broadcasting/auth` route is automatically placed within the `web` middleware group.
+Private channels require you to authorize that the currently authenticated user can listen on the channel. When using [Laravel Echo](#laravel-echo), the HTTP request to authorize subscriptions to private channels is made automatically.
 
-The Broadcasting plugin provides a `BroadcastingAuthController` that handles these authorization requests. You may customize this controller by extending it or by defining your own routes.
+When the Broadcasting plugin is loaded with routes enabled, it registers `/broadcasting/auth` (and `/broadcasting/user-auth`) via `BroadcastingPlugin::routes()`. Authorization callbacks themselves are loaded from `config/channels.php` when the plugin boots (`Broadcasting::routes()`).
+
+If plugin routes are not loaded automatically (for example routes are disabled for the plugin, or you need an explicit mount), register them manually in your application's `config/routes.php`:
+
+```php
+use Cake\Routing\RouteBuilder;
+
+/** @var \Cake\Routing\RouteBuilder $routes */
+$routes->scope('/', function (RouteBuilder $builder): void {
+    $builder->connect('/broadcasting/auth', [
+        'plugin' => 'Crustum/Broadcasting',
+        'controller' => 'BroadcastingAuth',
+        'action' => 'auth',
+    ]);
+    $builder->connect('/broadcasting/user-auth', [
+        'plugin' => 'Crustum/Broadcasting',
+        'controller' => 'BroadcastingAuth',
+        'action' => 'userAuth',
+    ]);
+});
+```
+
+Ensure the plugin is loaded so bootstrap still initializes broadcasters and includes `config/channels.php`. You may also call `Broadcasting::routes()` yourself if channel callbacks were not loaded during bootstrap.
+
+The plugin provides a `BroadcastingAuthController` that handles these authorization requests. You may customize this controller by extending it or by defining your own routes.
 
 <a name="broadcasting-events"></a>
 ## Broadcasting Events
@@ -978,6 +1002,41 @@ useEchoPresence("posts", "PostPublished", (e) => {
 </script>
 ```
 
+<a name="react-vue-connection-status"></a>
+#### Connection Status
+
+You may retrieve the current WebSocket connection status using the `useConnectionStatus` hook, which provides reactive status that automatically updates when the connection state changes:
+
+```js tab=React
+import { useConnectionStatus } from "@laravel/echo-react";
+
+function ConnectionIndicator() {
+    const status = useConnectionStatus();
+
+    return <div>Connection: {status}</div>;
+}
+```
+
+```vue tab=Vue
+<script setup lang="ts">
+import { useConnectionStatus } from "@laravel/echo-vue";
+
+const status = useConnectionStatus();
+</script>
+
+<template>
+    <div>Connection: {{ status }}</div>
+</template>
+```
+
+The possible status values are:
+
+- `connected` — Successfully connected to the WebSocket server.
+- `connecting` — Initial connection attempt in progress.
+- `reconnecting` — Attempting to reconnect after a disconnection.
+- `disconnected` — Not connected and not attempting to reconnect.
+- `failed` — Connection failed and won't retry.
+
 <a name="presence-channels"></a>
 ## Presence Channels
 
@@ -1081,7 +1140,7 @@ However, if you are not using these events for any other purposes in your applic
 <a name="model-broadcasting-behavior"></a>
 ### Model Broadcasting Behavior
 
-To get started, your ORM Table should use the `Broadcasting.Broadcasting` behavior. The behavior should define which events should be broadcast and how:
+To get started, your ORM Table must use the `BroadcastingTrait` and implement `BroadcastingTraitInterface`, then add the `Broadcasting.Broadcasting` behavior. The behavior handles event mapping while the trait provides broadcasting functionality:
 
 ```php
 <?php
@@ -1090,32 +1149,64 @@ declare(strict_types=1);
 namespace App\Model\Table;
 
 use Cake\ORM\Table;
+use Crustum\Broadcasting\Model\Interface\BroadcastingTraitInterface;
+use Crustum\Broadcasting\Model\Trait\BroadcastingTrait;
 
-class PostsTable extends Table
+class PostsTable extends Table implements BroadcastingTraitInterface
 {
+    use BroadcastingTrait;
+
     public function initialize(array $config): void
     {
         parent::initialize($config);
 
-        $this->addBehavior('Broadcasting.Broadcasting', [
+        $this->addBehavior('Crustum/Broadcasting.Broadcasting', [
             'events' => [
                 'Model.afterSave' => 'saved',
                 'Model.afterDelete' => 'deleted',
             ],
-            'channels' => function ($entity, $event) {
-                return ['posts.' . $entity->id];
-            },
-            'payload' => function ($entity, $event) {
-                return [
-                    'post' => $entity->toArray(),
-                ];
-            },
         ]);
+
+        $this->setBroadcastChannels(function ($entity, $event) {
+            return ['posts.' . $entity->id];
+        });
+
+        $this->setBroadcastPayload(function ($entity, $event) {
+            return [
+                'post' => $entity->toArray(),
+            ];
+        });
     }
 }
 ```
 
-Once your model includes this behavior and defines its broadcast configuration, it will begin automatically broadcasting events when a model instance is created, updated, or deleted.
+Once your model includes the trait, implements the interface, and adds the behavior, it will begin automatically broadcasting events when a model instance is created, updated, or deleted.
+
+You can also configure broadcasting options via the behavior configuration:
+
+```php
+$this->addBehavior('Crustum/Broadcasting.Broadcasting', [
+    'events' => [
+        'Model.afterSave' => 'saved',
+        'Model.afterDelete' => 'deleted',
+    ],
+    'enabled' => true,
+    'connection' => 'default',
+    'queue' => 'broadcasts',
+    'channels' => function ($entity, $event) {
+        return ['posts.' . $entity->id];
+    },
+    'payload' => function ($entity, $event) {
+        return ['post' => $entity->toArray()];
+    },
+    'eventName' => 'PostUpdated',
+    'broadcastEvents' => [
+        'created' => true,
+        'updated' => true,
+        'deleted' => false,
+    ],
+]);
+```
 
 #### Default Channel Name Generation
 
@@ -1179,27 +1270,34 @@ $this->addBehavior('Broadcasting.Broadcasting', [
 
 #### Configuration Options
 
-The behavior supports several configuration options:
+The behavior supports several configuration options that are passed to the trait methods:
 
 - `events`: Maps CakePHP model events to broadcast event names (default: `['Model.afterSave' => 'saved', 'Model.afterDelete' => 'deleted']`)
-- `broadcastEvents`: Controls which event types are enabled (default: `['created' => true, 'updated' => true, 'deleted' => true]`)
-- `channels`: Callback or array defining which channels to broadcast to (default: entity-based channel naming)
-- `payload`: Callback or array defining the data to broadcast (default: `$entity->toArray()` with `event_type`)
-- `eventName`: Callback or string defining the broadcast event name (default: `{EntityClass}{EventType}`)
-- `connection`: Broadcasting connection to use (default: `'default'`)
-- `queue`: Queue name for async broadcasting (default: `null` for synchronous)
-- `enabled`: Whether broadcasting is enabled (default: `true`)
+- `enabled`: Whether broadcasting is enabled (default: `true`) - calls `enableBroadcasting()` or `disableBroadcasting()`
+- `connection`: Broadcasting connection to use (default: `'default'`) - calls `setBroadcastConnection()`
+- `queue`: Queue name for async broadcasting (default: `null` for synchronous) - calls `setBroadcastQueue()`
+- `channels`: Callback or array defining which channels to broadcast to (default: entity-based channel naming) - calls `setBroadcastChannels()`
+- `payload`: Callback or array defining the data to broadcast (default: `$entity->toArray()` with `event_type`) - calls `setBroadcastPayload()`
+- `eventName`: Callback or string defining the broadcast event name (default: `{EntityClass}{EventType}`) - calls `setBroadcastEventName()`
+- `broadcastEvents`: Controls which event types are enabled (default: `['created' => true, 'updated' => true, 'deleted' => true]`) - calls `setBroadcastEvents()`
 
-You may have noticed that the behavior receives a string `$event` argument in the callbacks. This argument contains the type of event that has occurred on the model and will have a value of `created`, `updated`, `deleted`, etc. By inspecting the value of this variable, you may determine which channels (if any) the model should broadcast to for a particular event:
+You can also configure these options programmatically using the trait methods:
 
 ```php
-'channels' => function ($entity, $event) {
+$this->setBroadcastChannels(function ($entity, $event) {
     return match ($event) {
         'deleted' => [],
         default => ['posts.' . $entity->id, 'posts'],
     };
-}
+});
+
+$this->setBroadcastQueue('broadcasts');
+$this->setBroadcastConnection('pusher');
+$this->enableBroadcastEvent('created');
+$this->disableBroadcastEvent('deleted');
 ```
+
+The `$event` argument in callbacks contains the type of event that has occurred on the model and will have a value of `created`, `updated`, `deleted`, etc. By inspecting the value of this variable, you may determine which channels (if any) the model should broadcast to for a particular event.
 
 <a name="listening-for-model-broadcasts"></a>
 ### Listening for Model Broadcasts
@@ -1256,6 +1354,25 @@ Echo.private(`App.Model.Entity.User.${userId}`)
 ```
 
 In this example, all notifications sent to `App\Model\Entity\User` instances via the `broadcast` channel would be received by the callback. A channel authorization callback for the `App.Model.Entity.User.{id}` channel is included in your application's `config/channels.php` file.
+
+<a name="stop-listening-for-notifications"></a>
+### Stop Listening for Notifications
+
+If you would like to stop listening to notifications without [leaving the channel](#leaving-a-channel), you may use the `stopListeningForNotification` method:
+
+```js
+const callback = (notification) => {
+    console.log(notification.type);
+};
+
+Echo.private(`App.Model.Entity.User.${userId}`)
+    .notification(callback);
+
+Echo.private(`App.Model.Entity.User.${userId}`)
+    .stopListeningForNotification(callback);
+```
+
+The callback passed to `stopListeningForNotification` must be the same function reference that was passed to `notification`.
 
 <a name="testing"></a>
 ## Testing
@@ -1588,9 +1705,8 @@ class PostTest extends TestCase
     public function testPostBroadcastsOnSave(): void
     {
         $postsTable = $this->getTableLocator()->get('Posts');
-        $postsTable->addBehavior('Broadcasting.Broadcasting', [
-            'channels' => fn($entity) => ['posts.' . $entity->id],
-        ]);
+        $postsTable->addBehavior('Crustum/Broadcasting.Broadcasting');
+        $postsTable->setBroadcastChannels(fn($entity) => ['posts.' . $entity->id]);
 
         $post = $postsTable->newEntity(['title' => 'Test Post']);
         $postsTable->save($post);
@@ -1602,7 +1718,7 @@ class PostTest extends TestCase
     public function testPostBroadcastCustomization(): void
     {
         $postsTable = $this->getTableLocator()->get('Posts');
-        $postsTable->addBehavior('Broadcasting.Broadcasting', [
+        $postsTable->addBehavior('Crustum/Broadcasting.Broadcasting', [
             'channels' => ['posts', 'admin'],
             'eventName' => 'post.created',
             'payload' => function ($entity) {
@@ -1619,6 +1735,21 @@ class PostTest extends TestCase
         $this->assertBroadcastSent('post.created');
         $this->assertBroadcastSentToChannels(['posts', 'admin'], 'post.created');
         $this->assertBroadcastPayloadContains('post.created', 'title', 'Test Post');
+    }
+
+    public function testQueuedBroadcasts(): void
+    {
+        $postsTable = $this->getTableLocator()->get('Posts');
+        $postsTable->addBehavior('Crustum/Broadcasting.Broadcasting');
+        $postsTable->setBroadcastQueue('broadcasts');
+        $postsTable->setBroadcastChannels(['posts']);
+
+        $post = $postsTable->newEntity(['title' => 'Test Post']);
+        $postsTable->save($post);
+
+        $this->assertBroadcastQueued('PostCreated');
+        $this->assertBroadcastQueuedToChannel('posts', 'PostCreated');
+        $this->assertNoBroadcastsSent();
     }
 }
 ```
@@ -1644,6 +1775,10 @@ The `BroadcastingTrait` provides the following assertion methods for your tests:
 | `assertBroadcastToChannelTimes(string $channel, string $event, int $times)` | Assert a broadcast to channel was sent N times |
 | `assertBroadcastCount(int $count)` | Assert the total number of broadcasts sent |
 | `assertNoBroadcastsSent()` | Assert no broadcasts were sent |
+| `assertBroadcastQueued(string $event)` | Assert a broadcast was queued |
+| `assertBroadcastQueuedToChannel(string $channel, string $event)` | Assert a broadcast was queued to a channel |
+| `assertNoBroadcastsQueued()` | Assert no broadcasts were queued |
+| `assertBroadcastQueuedCount(int $count)` | Assert the total number of queued broadcasts |
 
 Helper methods for retrieving captured broadcasts:
 
@@ -1653,3 +1788,5 @@ Helper methods for retrieving captured broadcasts:
 | `getBroadcastsByEvent(string $event)` | Get broadcasts of a specific event |
 | `getBroadcastsToChannel(string $channel)` | Get broadcasts sent to a channel |
 | `getBroadcastsByConnection(string $connection)` | Get broadcasts sent via a connection |
+| `getQueuedJobs()` | Get all queued jobs |
+| `getQueuedBroadcastsByEvent(string $event)` | Get queued broadcasts of a specific event |

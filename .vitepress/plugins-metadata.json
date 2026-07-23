@@ -40,6 +40,22 @@
     "githubUrl": "https://github.com/crustum/essentia"
   },
   {
+    "title": "Inspector Plugin",
+    "description": "Package and stack detection for CakePHP projects. Reads lockfiles and optionally source to report dependencies, frontend stack, AI agents, editors, and codebase conventions.",
+    "slug": "Inspector",
+    "path": "/Inspector/",
+    "name": "Inspector",
+    "githubUrl": "https://github.com/Crustum/inspector"
+  },
+  {
+    "title": "JsonSchema Plugin",
+    "description": "Fluent JSON Schema builder for PHP. Describe structured inputs and outputs—especially tool and agent schemas—using a small expressive API under Crustum\\JsonSchema.",
+    "slug": "JsonSchema",
+    "path": "/JsonSchema/",
+    "name": "JsonSchema",
+    "githubUrl": "https://github.com/Crustum/json-schema"
+  },
+  {
     "title": "MercureBroadcasting Plugin",
     "description": "Mercure broadcaster driver for the CakePHP Broadcasting plugin. Provides Server-Sent Events (SSE) based broadcasting using the Mercure protocol.",
     "slug": "MercureBroadcasting",
@@ -80,12 +96,28 @@
     "githubUrl": "https://github.com/skie/plugin-manifest"
   },
   {
+    "title": "Prompts Plugin",
+    "description": "Laravel Prompts wrappers for CakePHP Console. Interactive CLI forms via Crustum/Prompts helpers, with native Windows ConsoleIo fallbacks when TTY prompts are unavailable.",
+    "slug": "Prompts",
+    "path": "/Prompts/",
+    "name": "Prompts",
+    "githubUrl": "https://github.com/Crustum/prompts"
+  },
+  {
     "title": "RocketChatNotification Plugin",
     "description": "Seamless integration with RocketChat for team notifications. Send messages, alerts, and updates directly to RocketChat channels and users.",
     "slug": "RocketChatNotification",
     "path": "/RocketChatNotification/",
     "name": "RocketChatNotification",
     "githubUrl": "https://github.com/Crustum/RocketchatNotification"
+  },
+  {
+    "title": "Saloon Plugin",
+    "description": "Saloon v4 HTTP client integration for CakePHP 5. Object-oriented connectors and requests, Bake generators, testing helpers, caching, rate limiting, and CakePHP event bridges.",
+    "slug": "Saloon",
+    "path": "/Saloon/",
+    "name": "Saloon",
+    "githubUrl": "https://github.com/Crustum/saloon"
   },
   {
     "title": "SevenNotification Plugin",
@@ -118,5 +150,13 @@
     "path": "/Temporal/",
     "name": "Temporal",
     "githubUrl": "https://github.com/Crustum/cakephp-temporal"
+  },
+  {
+    "title": "Tessera Plugin",
+    "description": "Full OAuth2 server for CakePHP built on League OAuth2 Server. Authorization codes, client credentials, device grant, and personal access tokens with cakephp/authentication.",
+    "slug": "Tessera",
+    "path": "/Tessera/",
+    "name": "Tessera",
+    "githubUrl": "https://github.com/Crustum/tessera"
   }
 ]
