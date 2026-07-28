@@ -8,6 +8,48 @@
  */
 export const pluginsConfig = [
   {
+    title: 'Explorator Plugin',
+    details: 'Driver-based full-text search for CakePHP Tables and Entities. Built-in database and collection engines, plus Algolia, Meilisearch, and Typesense drivers, with queue sync and a TestSuite fake engine.',
+    link: '/Explorator/',
+    name: 'Explorator',
+    githubUrl: 'https://github.com/Crustum/explorator'
+  },
+  {
+    title: 'MCP Plugin',
+    details: 'Model Context Protocol server and client support for CakePHP. Expose tools, resources, prompts, and apps to AI agents over HTTP or STDIO, with OAuth 2.1 authentication.',
+    link: '/Mcp/',
+    name: 'Mcp',
+    githubUrl: 'https://github.com/Crustum/mcp'
+  },
+  {
+    title: 'Ignis Plugin',
+    details: 'AI-assisted CakePHP development with composable guidelines, on-demand agent skills, skill packs, and an MCP server for live application context.',
+    link: '/Ignis/',
+    name: 'Ignis',
+    githubUrl: 'https://github.com/Crustum/ignis'
+  },
+  {
+    title: 'Speculum Plugin',
+    details: 'Debug assistant for CakePHP applications. Records requests, exceptions, logs, queries, jobs, mail, and related runtime activity into a searchable dashboard, with a small MCP surface for agents.',
+    link: '/Speculum/',
+    name: 'Speculum',
+    githubUrl: 'https://github.com/Crustum/speculum'
+  },
+  {
+    title: 'Scheduling Plugin',
+    details: 'CakePHP task scheduling with a fluent cron-style API, sub-minute precision, overlap prevention, single-server locks, background execution, and before/after/success/failure hooks.',
+    link: '/Scheduling/',
+    name: 'Scheduling',
+    githubUrl: 'https://github.com/Crustum/cakephp-scheduling'
+  },
+  {
+    title: 'Queue Plugin',
+    details: 'Dispatchable job helpers on top of cakephp/queue: self-dispatch, per-job queue configuration, tags, and pending/pushed events with an optional additive host emitter.',
+    link: '/Queue/',
+    name: 'Queue',
+    githubUrl: 'https://github.com/Crustum/cakephp-queue'
+  },
+  {
     title: 'Tessera Plugin',
     details: 'Full OAuth2 server for CakePHP built on League OAuth2 Server. Authorization codes, client credentials, device grant, and personal access tokens with cakephp/authentication.',
     link: '/Tessera/',

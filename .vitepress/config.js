@@ -243,6 +243,18 @@ export default defineConfig({
                             { "text": "Modules", "link": "/Notification/modules" }
                         ]
                     }
+                ],
+                "/Scheduling/": [
+                    {
+                        "text": "Scheduling",
+                        "collapsed": false,
+                        "items": [
+                            { "text": "Home", "link": "/Scheduling/" },
+                            { "text": "Installation", "link": "/Scheduling/Installation" },
+                            { "text": "Integration", "link": "/Scheduling/Integration" },
+                            { "text": "API Reference", "link": "/Scheduling/API-Reference" }
+                        ]
+                    }
                 ]
             }
 

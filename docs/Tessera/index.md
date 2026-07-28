@@ -149,6 +149,8 @@ $permissions = array_merge(
 
 The fragment lives in `config/permissions.php` inside the Tessera plugin (token, authorize, approve/deny, device endpoints). Rules already set `bypassAuth => true`.
 
+`bypassAuth` only skips CakeDC's "must be logged in" gate for those routes. It does **not** make OAuth anonymous free access. `AccessToken::issueToken` still validates client credentials and the grant body (including PKCE and secrets where required). Authorization, Approve, and Deny still require a session identity plus the consent `auth_token`. `TransientToken::refresh` still requires an authenticated identity and a CSRF claim when minting cookies. Device controllers still bind device and user codes. Do not copy these rules into a blanket "all `Crustum/Tessera` = public" policy.
+
 For authorize guests, Tessera redirects to `Tessera.loginUrl` (default `/login`) with `Tessera.loginRedirectQueryParam` (default `redirect`). Set `loginUrl` in host `config/tessera.php` if your login path differs (e.g. a CakeDC/Users named route array).
 
 All of your application's Tessera configuration is stored in the `config/tessera.php` configuration file after a manifest install:
@@ -165,10 +167,6 @@ return [
         'private_key' => env('TESSERA_PRIVATE_KEY'),
         'public_key' => env('TESSERA_PUBLIC_KEY'),
         'connection' => env('TESSERA_CONNECTION'),
-        'personal_access_client' => [
-            'id' => null,
-            'secret' => null,
-        ],
         'TokenAuthenticator' => [
             'className' => \Crustum\Tessera\Authenticator\TokenAuthenticator::class,
             'providerName' => 'users',
@@ -177,6 +175,7 @@ return [
 ];
 ```
 
+Personal access clients are OAuth client rows (create via `bin/cake tessera client --personal` / factories), not secrets in `config/tessera.php`.
 <a name="deploying-tessera"></a>
 ### Deploying Tessera
 
@@ -963,7 +962,7 @@ bin/cake tessera client --client
 
 Next, assign `EnsureClientIsResourceOwnerMiddleware` to your host API routes. Resolve League's `ResourceServer` from the application container inside `Application::routes()` (or an equivalent place that has `$this->getContainer()`). Cake builds the container lazily on the first `getContainer()` call: that build runs your application's `services()` method and every loaded plugin's `services()` — including `TesseraPlugin`, which registers `ResourceServer` — before returning the container. You do not need `routes()` to run after a separate earlier `services()` phase.
 
-The string values passed to the middleware constructor are OAuth scope names you define with `Tessera::tokensCan()` (for example `servers:read`).
+The string values passed to the middleware constructor are OAuth scope names you define with `Tessera::tokensCan()` (for example `servers:read`). They are not Cake route names and are not Laravel-specific syntax.
 
 ```php
 // In src/Application.php
@@ -1253,6 +1252,9 @@ if ($user->tokenCant('orders:create')) {
 }
 ```
 
+> [!IMPORTANT]
+> For SPA cookie authentication, the attached token is transient and **always** authorizes every scope. See [Cookie Auth and Scopes](#spa-cookie-scopes). Scope checks are meaningful for Bearer / personal access tokens, not for the first-party API cookie.
+
 You may also inspect the current access token instance directly:
 
 ```php
@@ -1297,6 +1299,8 @@ $middlewareQueue->add(new CreateFreshApiTokenMiddleware());
 > [!WARNING]
 > You should ensure that the `CreateFreshApiTokenMiddleware` is the last middleware that can still attach cookies to the response before the response is sent.
 
+CakePHP's CSRF middleware must run earlier so the `csrfToken` request attribute is set. If that attribute is missing or empty, Tessera **will not** mint an API token cookie (and `TransientToken::refresh` fails closed). Do not treat an empty CSRF claim as acceptable.
+
 This middleware will attach a `tessera_token` cookie to your outgoing responses. This cookie contains an encrypted JWT that Tessera will use to authenticate API requests from your JavaScript application. Now, since the browser will automatically send the cookie with all subsequent requests, you may make requests to your application's API without explicitly passing an access token:
 
 ```js
@@ -1312,8 +1316,15 @@ fetch('/api/user', {
     });
 ```
 
+<a name="spa-cookie-scopes"></a>
+### Cookie Auth and Scopes (Hard Invariant)
+
+A cookie-authenticated first-party identity uses a **transient** token. That token's `can()` / `tokenCan()` checks **always succeed** for every scope — the SPA cookie is treated as full first-party API privilege (same model as the upstream OAuth server Tessera follows).
+
+XSS or a CSRF failure on the first-party origin can therefore reach any API route that accepts cookie auth. Do **not** rely on `CheckTokenMiddleware` or `tokenCan()` to limit privilege for cookie-authenticated requests. Prefer Bearer access tokens or personal access tokens for high-privilege admin APIs; keep cookie SPA auth on a reduced surface, or add host policies that reject transient tokens via `$token->transient()`. Keep CSRF middleware enabled and never call `Tessera::ignoreCsrfToken()` in production.
+
 <a name="customizing-the-cookie-name"></a>
-#### Customizing the Cookie Name
+### Customizing the Cookie Name
 
 If needed, you can customize the `tessera_token` cookie's name using the `Tessera::cookie` method. Typically, this method should be called from application bootstrap:
 
@@ -1324,12 +1335,12 @@ Tessera::cookie('custom_name');
 ```
 
 <a name="csrf-protection"></a>
-#### CSRF Protection
+### CSRF Protection
 
 When using this method of authentication, you will need to ensure a valid CSRF token header is included in your requests. CakePHP's CSRF middleware provides the token your frontend should send on same-origin requests.
 
 > [!NOTE]
-> Only call `Tessera::ignoreCsrfToken()` when you understand the security implications. Ignoring CSRF for cookie-based SPA authentication weakens the protection this flow relies on.
+> Only call `Tessera::ignoreCsrfToken()` when you understand the security implications. Ignoring CSRF for cookie-based SPA authentication weakens the protection this flow relies on. Do **not** enable it in production.
 
 <a name="events"></a>
 ## Events
@@ -1356,6 +1367,16 @@ EventManager::instance()->on(
 
 <a name="testing"></a>
 ## Testing
+
+Enable Feature-test stubs once in your test bootstrap (the plugin's PHPUnit bootstrap already does this):
+
+```php
+use Crustum\Tessera\Tessera;
+
+Tessera::allowActingAs(true);
+```
+
+Never call `Tessera::allowActingAs(true)` in production. When `debug` is false, plugin bootstrap clears stubs and disables actingAs. On long-lived workers, always `Tessera::clearActingAs()` after tests or tinker sessions.
 
 Tessera's `actingAs` method may be used to specify the currently authenticated user as well as its scopes. The first argument given to the `actingAs` method is the user instance and the second is an array of scopes that should be granted to the user's token:
 
@@ -1396,5 +1417,7 @@ public function testServersCanBeRetrieved(): void
 ```
 
 You may inspect the stubbed client with `Tessera::tokenClient()` and should always clear stubs in tearDown with `Tessera::clearActingAs()`. Feature tests can extend the plugin's `TesseraTestCase`, which bootstraps keys, TestApp wiring, and empty OAuth fixtures through CakePHP's `PHPUnitExtension`.
+
+`Tessera::actingAs()` / `actingAsClient()` throw unless `Tessera::allowActingAs(true)` was called. Authenticator and token middleware ignore leftover static stubs when actingAs is not allowed.
 
 Console commands use space-separated names rather than colons: `tessera keys`, `tessera hash`, `tessera purge`, and `tessera client`. Client secrets may be hashed in place with `bin/cake tessera hash` after you decide to store only hashed secrets.

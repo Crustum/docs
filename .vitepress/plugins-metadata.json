@@ -40,6 +40,22 @@
     "githubUrl": "https://github.com/crustum/essentia"
   },
   {
+    "title": "Explorator Plugin",
+    "description": "Driver-based full-text search for CakePHP Tables and Entities. Built-in database and collection engines, plus Algolia, Meilisearch, and Typesense drivers, with queue sync and a TestSuite fake engine.",
+    "slug": "Explorator",
+    "path": "/Explorator/",
+    "name": "Explorator",
+    "githubUrl": "https://github.com/Crustum/explorator"
+  },
+  {
+    "title": "Ignis Plugin",
+    "description": "AI-assisted CakePHP development with composable guidelines, on-demand agent skills, skill packs, and an MCP server for live application context.",
+    "slug": "Ignis",
+    "path": "/Ignis/",
+    "name": "Ignis",
+    "githubUrl": "https://github.com/Crustum/ignis"
+  },
+  {
     "title": "Inspector Plugin",
     "description": "Package and stack detection for CakePHP projects. Reads lockfiles and optionally source to report dependencies, frontend stack, AI agents, editors, and codebase conventions.",
     "slug": "Inspector",
@@ -54,6 +70,14 @@
     "path": "/JsonSchema/",
     "name": "JsonSchema",
     "githubUrl": "https://github.com/Crustum/json-schema"
+  },
+  {
+    "title": "MCP Plugin",
+    "description": "Model Context Protocol server and client support for CakePHP. Expose tools, resources, prompts, and apps to AI agents over HTTP or STDIO, with OAuth 2.1 authentication.",
+    "slug": "Mcp",
+    "path": "/Mcp/",
+    "name": "Mcp",
+    "githubUrl": "https://github.com/Crustum/mcp"
   },
   {
     "title": "MercureBroadcasting Plugin",
@@ -104,6 +128,14 @@
     "githubUrl": "https://github.com/Crustum/prompts"
   },
   {
+    "title": "Queue Plugin",
+    "description": "Dispatchable job helpers on top of cakephp/queue: self-dispatch, per-job queue configuration, tags, and pending/pushed events with an optional additive host emitter.",
+    "slug": "Queue",
+    "path": "/Queue/",
+    "name": "Queue",
+    "githubUrl": "https://github.com/Crustum/cakephp-queue"
+  },
+  {
     "title": "RocketChatNotification Plugin",
     "description": "Seamless integration with RocketChat for team notifications. Send messages, alerts, and updates directly to RocketChat channels and users.",
     "slug": "RocketChatNotification",
@@ -120,6 +152,14 @@
     "githubUrl": "https://github.com/Crustum/saloon"
   },
   {
+    "title": "Scheduling Plugin",
+    "description": "CakePHP task scheduling with a fluent cron-style API, sub-minute precision, overlap prevention, single-server locks, background execution, and before/after/success/failure hooks.",
+    "slug": "Scheduling",
+    "path": "/Scheduling/",
+    "name": "Scheduling",
+    "githubUrl": "https://github.com/Crustum/cakephp-scheduling"
+  },
+  {
     "title": "SevenNotification Plugin",
     "description": "SMS notification service integration using the 7SMS API. Send text messages and SMS alerts to users with reliable delivery tracking.",
     "slug": "SevenNotification",
@@ -134,6 +174,14 @@
     "path": "/SlackNotification/",
     "name": "SlackNotification",
     "githubUrl": "https://github.com/Crustum/SlackNotification"
+  },
+  {
+    "title": "Speculum Plugin",
+    "description": "Debug assistant for CakePHP applications. Records requests, exceptions, logs, queries, jobs, mail, and related runtime activity into a searchable dashboard, with a small MCP surface for agents.",
+    "slug": "Speculum",
+    "path": "/Speculum/",
+    "name": "Speculum",
+    "githubUrl": "https://github.com/Crustum/speculum"
   },
   {
     "title": "TelegramNotification Plugin",

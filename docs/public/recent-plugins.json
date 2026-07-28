@@ -1,5 +1,53 @@
 [
   {
+    "title": "Explorator Plugin",
+    "description": "Driver-based full-text search for CakePHP Tables and Entities. Built-in database and collection engines, plus Algolia, Meilisearch, and Typesense drivers, with queue sync and a TestSuite fake engine.",
+    "slug": "Explorator",
+    "path": "/Explorator/",
+    "name": "Explorator",
+    "githubUrl": "https://github.com/Crustum/explorator"
+  },
+  {
+    "title": "MCP Plugin",
+    "description": "Model Context Protocol server and client support for CakePHP. Expose tools, resources, prompts, and apps to AI agents over HTTP or STDIO, with OAuth 2.1 authentication.",
+    "slug": "Mcp",
+    "path": "/Mcp/",
+    "name": "Mcp",
+    "githubUrl": "https://github.com/Crustum/mcp"
+  },
+  {
+    "title": "Ignis Plugin",
+    "description": "AI-assisted CakePHP development with composable guidelines, on-demand agent skills, skill packs, and an MCP server for live application context.",
+    "slug": "Ignis",
+    "path": "/Ignis/",
+    "name": "Ignis",
+    "githubUrl": "https://github.com/Crustum/ignis"
+  },
+  {
+    "title": "Speculum Plugin",
+    "description": "Debug assistant for CakePHP applications. Records requests, exceptions, logs, queries, jobs, mail, and related runtime activity into a searchable dashboard, with a small MCP surface for agents.",
+    "slug": "Speculum",
+    "path": "/Speculum/",
+    "name": "Speculum",
+    "githubUrl": "https://github.com/Crustum/speculum"
+  },
+  {
+    "title": "Scheduling Plugin",
+    "description": "CakePHP task scheduling with a fluent cron-style API, sub-minute precision, overlap prevention, single-server locks, background execution, and before/after/success/failure hooks.",
+    "slug": "Scheduling",
+    "path": "/Scheduling/",
+    "name": "Scheduling",
+    "githubUrl": "https://github.com/Crustum/cakephp-scheduling"
+  },
+  {
+    "title": "Queue Plugin",
+    "description": "Dispatchable job helpers on top of cakephp/queue: self-dispatch, per-job queue configuration, tags, and pending/pushed events with an optional additive host emitter.",
+    "slug": "Queue",
+    "path": "/Queue/",
+    "name": "Queue",
+    "githubUrl": "https://github.com/Crustum/cakephp-queue"
+  },
+  {
     "title": "Tessera Plugin",
     "description": "Full OAuth2 server for CakePHP built on League OAuth2 Server. Authorization codes, client credentials, device grant, and personal access tokens with cakephp/authentication.",
     "slug": "Tessera",
@@ -46,53 +94,5 @@
     "path": "/Saloon/",
     "name": "Saloon",
     "githubUrl": "https://github.com/Crustum/saloon"
-  },
-  {
-    "title": "BlazeCast Plugin",
-    "description": "Self-hosted WebSocket server for CakePHP applications that implements the Pusher protocol. Enables real-time bidirectional communication with support for public, private, and presence channels, Redis PubSub for horizontal scaling, and seamless integration with Pusher JavaScript libraries and Laravel Echo.",
-    "slug": "BlazeCast",
-    "path": "/BlazeCast/",
-    "name": "BlazeCast",
-    "githubUrl": "https://github.com/crustum/blazecast"
-  },
-  {
-    "title": "MercureBroadcasting Plugin",
-    "description": "Mercure broadcaster driver for the CakePHP Broadcasting plugin. Provides Server-Sent Events (SSE) based broadcasting using the Mercure protocol.",
-    "slug": "MercureBroadcasting",
-    "path": "/MercureBroadcasting/",
-    "name": "MercureBroadcasting",
-    "githubUrl": "https://github.com/crustum/mercure-broadcasting"
-  },
-  {
-    "title": "Temporal Plugin",
-    "description": "Workflow orchestration for CakePHP applications using Temporal. Build distributed, scalable, durable, and highly available workflows for asynchronous long-running business logic in microservice architectures.",
-    "slug": "Temporal",
-    "path": "/Temporal/",
-    "name": "Temporal",
-    "githubUrl": "https://github.com/Crustum/cakephp-temporal"
-  },
-  {
-    "title": "OpenRouter Plugin",
-    "description": "Easy-to-use interface for integrating OpenRouter into CakePHP applications. Unified interface for Large Language Models with type-safe DTOs for all API interactions including chat completions, streaming, tool calling, and more.",
-    "slug": "OpenRouter",
-    "path": "/OpenRouter/",
-    "name": "OpenRouter",
-    "githubUrl": "https://github.com/crustum/openrouter"
-  },
-  {
-    "title": "PluginManifest Plugin",
-    "description": "Plugin asset installation and publishing system for CakePHP 5.x. Standardized mechanism for plugins to distribute optional assets including configuration files, migrations, templates, and bootstrap code with smart duplicate detection.",
-    "slug": "PluginManifest",
-    "path": "/PluginManifest/",
-    "name": "PluginManifest",
-    "githubUrl": "https://github.com/skie/plugin-manifest"
-  },
-  {
-    "title": "BatchQueue Plugin",
-    "description": "Advanced job coordination system for CakePHP Queue. Handle parallel batches, sequential chains, saga compensation patterns, and dynamic workflow execution with proper failure handling.",
-    "slug": "BatchQueue",
-    "path": "/BatchQueue/",
-    "name": "BatchQueue",
-    "githubUrl": "https://github.com/crustum/batch-queue"
   }
 ]
