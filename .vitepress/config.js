@@ -59,12 +59,16 @@ export default defineConfig({
     title: 'Crustum CakePHP Plugins',
     description: 'Modern CakePHP plugins',
     ignoreDeadLinks: true,
+    sitemap: {
+        hostname: 'https://crustum.github.io/docs/'
+    },
     head: [
         ['link', { rel: 'icon', type: 'image/png', href: '/favicon/favicon-96x96.png', sizes: '96x96' }],
         ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon/favicon.svg' }],
         ['link', { rel: 'shortcut icon', href: '/favicon/favicon.ico' }],
         ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: '/favicon/apple-touch-icon.png' }],
-        ['meta', { name: 'apple-mobile-web-app-title', content: 'CakePHP' }],
+        ['meta', { name: 'apple-mobile-web-app-title', content: 'Crustum plugins' }],
+        ['meta', { name: 'google-site-verification', content: 'hzU4QLfKO6iFLtKAnKNn2657ExHMfuS-kqw7EOG0BjI' }],
         ['link', { rel: 'manifest', href: '/favicon/site.webmanifest' }],
         ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
         ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
