@@ -8,6 +8,20 @@
  */
 export const pluginsConfig = [
   {
+    title: 'Meta Plugin',
+    details: 'Fluent API for managing the document head in CakePHP applications, with support for title and meta tags, Open Graph, canonical URLs, robots directives, performance hints, and structured data. Works through the Head helper and resolves metadata from page defaults, route options, runtime calls, and error pages.',
+    link: '/Meta/',
+    name: 'Meta',
+    githubUrl: 'https://github.com/Crustum/Meta'
+  },
+  {
+    title: 'Audit Plugin',
+    details: 'Diagnoses common configuration, environment, and infrastructure problems in CakePHP applications before they reach users. One diagnostic, one check; issues that cannot be repaired safely are reported with clear remediation steps.',
+    link: '/Audit/',
+    name: 'Audit',
+    githubUrl: 'https://github.com/Crustum/Audit'
+  },
+  {
     title: 'Explorator Plugin',
     details: 'Driver-based full-text search for CakePHP Tables and Entities. Built-in database and collection engines, plus Algolia, Meilisearch, and Typesense drivers, with queue sync and a TestSuite fake engine.',
     link: '/Explorator/',

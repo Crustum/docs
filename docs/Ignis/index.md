@@ -233,7 +233,7 @@ This delegates to the Crustum MCP stack (`bin/cake mcp start cake-ignis`).
 | Database Query | Execute a query against the database |
 | Database Schema | Read the database schema |
 | Get Absolute URL | Convert relative path URIs to absolute URLs |
-| Current Time | Host clock (app timezone + UTC); prefer over shell date commands |
+| Current Time | Host clock in `App.defaultTimezone` as one formatted timestamp; prefer over shell date commands |
 | Last Error | Read the last error from the application's log files |
 | Read Log Entries | Read the last N log entries |
 | List / Get Routes | Inspect application routes |

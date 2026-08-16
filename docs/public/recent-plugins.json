@@ -1,5 +1,21 @@
 [
   {
+    "title": "Meta Plugin",
+    "description": "Fluent API for managing the document head in CakePHP applications, with support for title and meta tags, Open Graph, canonical URLs, robots directives, performance hints, and structured data. Works through the Head helper and resolves metadata from page defaults, route options, runtime calls, and error pages.",
+    "slug": "Meta",
+    "path": "/Meta/",
+    "name": "Meta",
+    "githubUrl": "https://github.com/Crustum/Meta"
+  },
+  {
+    "title": "Audit Plugin",
+    "description": "Diagnoses common configuration, environment, and infrastructure problems in CakePHP applications before they reach users. One diagnostic, one check; issues that cannot be repaired safely are reported with clear remediation steps.",
+    "slug": "Audit",
+    "path": "/Audit/",
+    "name": "Audit",
+    "githubUrl": "https://github.com/Crustum/Audit"
+  },
+  {
     "title": "Explorator Plugin",
     "description": "Driver-based full-text search for CakePHP Tables and Entities. Built-in database and collection engines, plus Algolia, Meilisearch, and Typesense drivers, with queue sync and a TestSuite fake engine.",
     "slug": "Explorator",
@@ -78,21 +94,5 @@
     "path": "/Prompts/",
     "name": "Prompts",
     "githubUrl": "https://github.com/Crustum/prompts"
-  },
-  {
-    "title": "JsonSchema Plugin",
-    "description": "Fluent JSON Schema builder for PHP. Describe structured inputs and outputs—especially tool and agent schemas—using a small expressive API under Crustum\\JsonSchema.",
-    "slug": "JsonSchema",
-    "path": "/JsonSchema/",
-    "name": "JsonSchema",
-    "githubUrl": "https://github.com/Crustum/json-schema"
-  },
-  {
-    "title": "Saloon Plugin",
-    "description": "Saloon v4 HTTP client integration for CakePHP 5. Object-oriented connectors and requests, Bake generators, testing helpers, caching, rate limiting, and CakePHP event bridges.",
-    "slug": "Saloon",
-    "path": "/Saloon/",
-    "name": "Saloon",
-    "githubUrl": "https://github.com/Crustum/saloon"
   }
 ]
