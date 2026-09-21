@@ -218,6 +218,37 @@ export default defineConfig({
         // start-sidebar
         sidebar: (() => {
             const sidebar = {
+            "/Rhythm/": [
+                {
+                    "text": "Rhythm Plugin",
+                    "collapsed": false,
+                    "items": [
+                        { "text": "Home", "link": "/Rhythm/" },
+                        { "text": "Configuration", "link": "/Rhythm/configuration" },
+                        { "text": "Rhythm", "link": "/Rhythm/rhythm" }
+                    ]
+                }
+            ],
+            "/JsonField/": [
+                {
+                    "text": "JsonField Plugin",
+                    "collapsed": false,
+                    "items": [
+                        { "text": "Home", "link": "/JsonField/" },
+                        { "text": "Associations", "link": "/JsonField/associations" },
+                        { "text": "Database Basics", "link": "/JsonField/database-basics" },
+                        { "text": "Deleting Data", "link": "/JsonField/deleting-data" },
+                        { "text": "Entities", "link": "/JsonField/entities" },
+                        { "text": "Json Field Behavior", "link": "/JsonField/json-field-behavior" },
+                        { "text": "Query Builder", "link": "/JsonField/query-builder" },
+                        { "text": "Retrieving Data And Resultsets", "link": "/JsonField/retrieving-data-and-resultsets" },
+                        { "text": "Saving Data", "link": "/JsonField/saving-data" },
+                        { "text": "Schema System", "link": "/JsonField/schema-system" },
+                        { "text": "Table Objects", "link": "/JsonField/table-objects" },
+                        { "text": "Validation", "link": "/JsonField/validation" }
+                    ]
+                }
+            ],
                 "/": [
                     {
                         "text": "Crustum CakePHP Plugins",

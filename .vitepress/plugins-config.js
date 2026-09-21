@@ -8,6 +8,34 @@
  */
 export const pluginsConfig = [
   {
+    title: 'DevConsole Plugin',
+    details: 'Runs everything needed for local CakePHP development from a single terminal window: the dev server and Vite asset watcher run concurrently in labeled, color-coded tabs with searchable output and automatic restarts on failure. Also manages queue workers, lists and stops processes, switches display modes and runners, and tails or serves application logs including a full log TUI.',
+    link: '/DevConsole/',
+    name: 'DevConsole',
+    githubUrl: 'https://github.com/Crustum/cakephp-dev-console'
+  },
+  {
+    title: 'Stimulus Plugin',
+    details: 'Supercharges CakePHP application performance by serving it with high-powered application servers including FrankenPHP, RoadRunner, Swoole, and Open Swoole. Boots the application once inside a long-lived worker and reuses that instance across requests, with HTTPS and Nginx setups, file watching, worker reloads, container and request injection, concurrent tasks, ticks and intervals, shared Stimulus cache, and Swoole tables — plus guidance on resetting request-specific state and managing memory leaks.',
+    link: '/Stimulus/',
+    name: 'Stimulus',
+    githubUrl: 'https://github.com/Crustum/stimulus'
+  },
+  {
+    title: 'JsonField Plugin',
+    details: 'Treats a JSON column as a nested-entity store inside your CakePHP application. Schema and per-path types are declared declaratively with PHP attributes, then paths become first-class addresses everywhere: filter, order, and compare against path values in SQL, hydrate nested entities and embeds, marshal and cast per-path types, persist changes as atomic engine-native path updates instead of whole-column rewrites, and join related tables through JSON foreign keys — across PostgreSQL, MySQL, and SQLite.',
+    link: '/JsonField/',
+    name: 'JsonField',
+    githubUrl: 'https://github.com/Crustum/cakephp-json-field'
+  },
+  {
+    title: 'AI Plugin',
+    details: 'Unified, expressive API for interacting with AI providers such as OpenAI, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, and OpenRouter. Build intelligent agents with tools, sub-agents, and structured output, generate images, synthesize and transcribe audio, create vector embeddings with reranking, and stream or queue agent runs — all through a consistent, CakePHP-friendly interface with database-backed conversation storage.',
+    link: '/Ai/',
+    name: 'Ai',
+    githubUrl: 'https://github.com/Crustum/cakephp-ai'
+  },
+  {
     title: 'Meta Plugin',
     details: 'Fluent API for managing the document head in CakePHP applications, with support for title and meta tags, Open Graph, canonical URLs, robots directives, performance hints, and structured data. Works through the Head helper and resolves metadata from page defaults, route options, runtime calls, and error pages.',
     link: '/Meta/',
@@ -20,6 +48,13 @@ export const pluginsConfig = [
     link: '/Audit/',
     name: 'Audit',
     githubUrl: 'https://github.com/Crustum/Audit'
+  },
+  {
+    title: 'Rhythm Plugin',
+    details: 'Real-time application performance monitoring for CakePHP 5.x with comprehensive metric collection, storage, and visualization. Tracks server resources, HTTP request patterns, slow database queries, queue and background job performance, exceptions, outgoing API calls, and cache hit rates across multiple servers. Ships a live dashboard with interactive widgets plus CLI tooling, configurable sampling and grouping, Redis ingest, and database or Redis storage with automatic aggregation.',
+    link: '/Rhythm/',
+    name: 'Rhythm',
+    githubUrl: 'https://github.com/Crustum/rhythm'
   },
   {
     title: 'Explorator Plugin',
@@ -138,7 +173,7 @@ export const pluginsConfig = [
     details: 'Plugin asset installation and publishing system for CakePHP 5.x. Standardized mechanism for plugins to distribute optional assets including configuration files, migrations, templates, and bootstrap code with smart duplicate detection.',
     link: '/PluginManifest/',
     name: 'PluginManifest',
-    githubUrl: 'https://github.com/skie/plugin-manifest'
+    githubUrl: 'https://github.com/crustum/PluginManifest'
   },
   {
     title: 'BatchQueue Plugin',

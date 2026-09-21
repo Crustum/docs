@@ -1,5 +1,37 @@
 [
   {
+    "title": "DevConsole Plugin",
+    "description": "Runs everything needed for local CakePHP development from a single terminal window: the dev server and Vite asset watcher run concurrently in labeled, color-coded tabs with searchable output and automatic restarts on failure. Also manages queue workers, lists and stops processes, switches display modes and runners, and tails or serves application logs including a full log TUI.",
+    "slug": "DevConsole",
+    "path": "/DevConsole/",
+    "name": "DevConsole",
+    "githubUrl": "https://github.com/Crustum/cakephp-dev-console"
+  },
+  {
+    "title": "Stimulus Plugin",
+    "description": "Supercharges CakePHP application performance by serving it with high-powered application servers including FrankenPHP, RoadRunner, Swoole, and Open Swoole. Boots the application once inside a long-lived worker and reuses that instance across requests, with HTTPS and Nginx setups, file watching, worker reloads, container and request injection, concurrent tasks, ticks and intervals, shared Stimulus cache, and Swoole tables — plus guidance on resetting request-specific state and managing memory leaks.",
+    "slug": "Stimulus",
+    "path": "/Stimulus/",
+    "name": "Stimulus",
+    "githubUrl": "https://github.com/Crustum/stimulus"
+  },
+  {
+    "title": "JsonField Plugin",
+    "description": "Treats a JSON column as a nested-entity store inside your CakePHP application. Schema and per-path types are declared declaratively with PHP attributes, then paths become first-class addresses everywhere: filter, order, and compare against path values in SQL, hydrate nested entities and embeds, marshal and cast per-path types, persist changes as atomic engine-native path updates instead of whole-column rewrites, and join related tables through JSON foreign keys — across PostgreSQL, MySQL, and SQLite.",
+    "slug": "JsonField",
+    "path": "/JsonField/",
+    "name": "JsonField",
+    "githubUrl": "https://github.com/Crustum/cakephp-json-field"
+  },
+  {
+    "title": "AI Plugin",
+    "description": "Unified, expressive API for interacting with AI providers such as OpenAI, Anthropic, Gemini, Azure, Bedrock, Groq, xAI, DeepSeek, Mistral, Ollama, and OpenRouter. Build intelligent agents with tools, sub-agents, and structured output, generate images, synthesize and transcribe audio, create vector embeddings with reranking, and stream or queue agent runs — all through a consistent, CakePHP-friendly interface with database-backed conversation storage.",
+    "slug": "Ai",
+    "path": "/Ai/",
+    "name": "Ai",
+    "githubUrl": "https://github.com/Crustum/cakephp-ai"
+  },
+  {
     "title": "Meta Plugin",
     "description": "Fluent API for managing the document head in CakePHP applications, with support for title and meta tags, Open Graph, canonical URLs, robots directives, performance hints, and structured data. Works through the Head helper and resolves metadata from page defaults, route options, runtime calls, and error pages.",
     "slug": "Meta",
@@ -14,6 +46,14 @@
     "path": "/Audit/",
     "name": "Audit",
     "githubUrl": "https://github.com/Crustum/Audit"
+  },
+  {
+    "title": "Rhythm Plugin",
+    "description": "Real-time application performance monitoring for CakePHP 5.x with comprehensive metric collection, storage, and visualization. Tracks server resources, HTTP request patterns, slow database queries, queue and background job performance, exceptions, outgoing API calls, and cache hit rates across multiple servers. Ships a live dashboard with interactive widgets plus CLI tooling, configurable sampling and grouping, Redis ingest, and database or Redis storage with automatic aggregation.",
+    "slug": "Rhythm",
+    "path": "/Rhythm/",
+    "name": "Rhythm",
+    "githubUrl": "https://github.com/Crustum/rhythm"
   },
   {
     "title": "Explorator Plugin",
@@ -54,45 +94,5 @@
     "path": "/Scheduling/",
     "name": "Scheduling",
     "githubUrl": "https://github.com/Crustum/cakephp-scheduling"
-  },
-  {
-    "title": "Queue Plugin",
-    "description": "Dispatchable job helpers on top of cakephp/queue: self-dispatch, per-job queue configuration, tags, and pending/pushed events with an optional additive host emitter.",
-    "slug": "Queue",
-    "path": "/Queue/",
-    "name": "Queue",
-    "githubUrl": "https://github.com/Crustum/cakephp-queue"
-  },
-  {
-    "title": "Tessera Plugin",
-    "description": "Full OAuth2 server for CakePHP built on League OAuth2 Server. Authorization codes, client credentials, device grant, and personal access tokens with cakephp/authentication.",
-    "slug": "Tessera",
-    "path": "/Tessera/",
-    "name": "Tessera",
-    "githubUrl": "https://github.com/Crustum/tessera"
-  },
-  {
-    "title": "Inspector Plugin",
-    "description": "Package and stack detection for CakePHP projects. Reads lockfiles and optionally source to report dependencies, frontend stack, AI agents, editors, and codebase conventions.",
-    "slug": "Inspector",
-    "path": "/Inspector/",
-    "name": "Inspector",
-    "githubUrl": "https://github.com/Crustum/inspector"
-  },
-  {
-    "title": "Essentia Plugin",
-    "description": "Agent-optimized output for PHP tools in CakePHP projects. Detects AI agent environments and replaces verbose PHPUnit, Pest, Paratest, PHPStan, Rector, and PHPCS output with compact structured JSON. Cleans CakePHP console output automatically with zero configuration.",
-    "slug": "Essentia",
-    "path": "/Essentia/",
-    "name": "Essentia",
-    "githubUrl": "https://github.com/crustum/essentia"
-  },
-  {
-    "title": "Prompts Plugin",
-    "description": "Laravel Prompts wrappers for CakePHP Console. Interactive CLI forms via Crustum/Prompts helpers, with native Windows ConsoleIo fallbacks when TTY prompts are unavailable.",
-    "slug": "Prompts",
-    "path": "/Prompts/",
-    "name": "Prompts",
-    "githubUrl": "https://github.com/Crustum/prompts"
   }
 ]

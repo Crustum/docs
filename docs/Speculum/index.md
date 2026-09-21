@@ -5,7 +5,7 @@
 
 [CakePHP Speculum](https://github.com/Crustum/speculum) makes a wonderful companion to your local CakePHP development environment. Speculum provides insight into the requests coming into your application, exceptions, log entries, database queries, queued jobs, mail, notifications, cache operations, scheduled tasks, broadcasts, and more.
 
-Speculum provides insight into requests, exceptions, log entries, database queries, queued jobs, mail, notifications, cache operations, scheduled tasks, broadcasts, BlazeCast WebSocket traffic, variable dumps, and more. It is adapted to CakePHP events, queue, mail, and related Crustum plugins.
+Speculum provides insight into requests, exceptions, log entries, database queries, queued jobs, mail, notifications, cache operations, scheduled tasks, broadcasts, BlazeCast WebSocket traffic, variable dumps, AI agent activity, and more. It is adapted to CakePHP events, queue, mail, and related Crustum plugins.
 
 
 <a name="installation"></a>
@@ -143,16 +143,12 @@ return [
             '.well-known*',
             'debug-kit*',
             'debug_kit*',
-            'monitor*',
-            'rhythm*',
         ],
         'ignore_commands' => [
             'migrations',
             'queue',
             'queue worker',
             'queue run',
-            'rhythm',
-            'rhythm check',
             // ...
         ],
         'watchers' => [
@@ -162,7 +158,7 @@ return [
 ];
 ```
 
-Third-party noise (DebugKit, Rhythm, Monitor, BlazeCast cache keys, and similar) belongs in these config lists / watcher options — not hardcoded in PHP classes. Speculum’s own UI/API paths, `speculum_*` tables, and Speculum pause-cache keys stay ignored in code.
+Third-party noise (DebugKit, Rhythm, BlazeCast cache keys, and similar) belongs in these config lists / watcher options — not hardcoded in PHP classes. Speculum’s own UI/API paths, `speculum_*` tables, and Speculum pause-cache keys stay ignored in code.
 
 <a name="data-pruning"></a>
 ### Data Pruning
@@ -190,15 +186,30 @@ bin/cake speculum prune --hours=48 --keep-exceptions
 <a name="dashboard-authorization"></a>
 ### Dashboard Authorization
 
-**Not part of this plugin.** Who may open `/telescope` is decided by the host application (Authentication / Authorization middleware, admin roles, IP allowlists, or loading the plugin only when `debug` is true).
-
-Speculum does **not** ship a dedicated dashboard authorization gate middleware. Soft host Authentication/Authorization middleware applies normally when the host enables it.
-
+See [Authorization](#authorization) for the full middleware setup. Who may open `/speculum` is decided by the host application.
 
 > [!WARNING]
-> Ensure Speculum is not publicly reachable in production. Prefer loading the plugin only in local/debug environments, or protect `/telescope` (and `/speculum/api`) with your app's own middleware.
+> Ensure Speculum is not publicly reachable in production. Prefer loading the plugin only in local/debug environments, or protect `/speculum` (and `/speculum/api`) with your app's own middleware.
 
 `Speculum::auth($user)` is unrelated: it attaches the current identity to **recorded entries** (tags like `Auth:{id}` and the Authenticated User card), not dashboard login.
+
+<a name="content-security-policy"></a>
+### Content Security Policy
+
+CSP headers are owned by the host application. To make the `/speculum` dashboard pass a nonce-based policy, forward the request nonce — Speculum echoes it on its own tags (two inline `<style>`, the inline `window.Speculum` script, and the external module script, which matters under `strict-dynamic`). Speculum never generates nonces.
+
+Primary path (worker-safe, per-request): set the `cspNonce` request attribute in host middleware, next to the header:
+
+```php
+$nonce = base64_encode(random_bytes(16));
+$response = $response->withHeader(
+    'Content-Security-Policy',
+    "script-src 'nonce-{$nonce}'; style-src 'nonce-{$nonce}'"
+);
+$request = $request->withAttribute('cspNonce', $nonce);
+```
+
+Fallback: `Speculum::cspNonce($nonce)`. Loses to the request attribute when both are present. In long-lived runtimes (RoadRunner, FrankenPHP, Swoole) call it on every request — a boot-time value is not a real nonce.
 
 <a name="filtering"></a>
 ## Filtering
@@ -274,7 +285,7 @@ Before a request or console command starts recording, Speculum consults top-leve
 
 | Key | Purpose |
 |-----|---------|
-| `ignore_paths` | fnmatch patterns against the HTTP path (leading `/` stripped). Defaults include DebugKit, Monitor, and Rhythm. Speculum’s own `path` / API routes are always ignored in code. |
+| `ignore_paths` | fnmatch patterns against the HTTP path (leading `/` stripped). Defaults include DebugKit, and Rhythm. Speculum’s own `path` / API routes are always ignored in code. |
 | `only_paths` | When non-empty, **only** matching paths are recorded (everything else is ignored). |
 | `ignore_commands` | Exact Cake command names or first-token prefixes (`queue`, `rhythm`, `migrations`, …). Also used so long-lived workers do not open a recording window for the worker process itself. |
 
@@ -282,8 +293,6 @@ Before a request or console command starts recording, Speculum consults top-leve
 'ignore_paths' => [
     'debug-kit*',
     'debug_kit*',
-    'monitor*',
-    'rhythm*',
 ],
 'ignore_commands' => [
     'queue',
@@ -312,6 +321,76 @@ Speculum::tag(function (IncomingEntry $entry) {
         : [];
 });
 ```
+
+## Persisting Entries (Flush)
+
+Watchers queue entries in memory; Speculum flushes them to storage on `Server.terminate`,
+`Command.afterExecute`, and at process shutdown. Long-working tools (CLI loops, queue
+workers, batch jobs) that want to **persist records immediately** should dispatch the flush
+event instead of calling `Speculum::store()` directly:
+
+```php
+use Cake\Event\Event;
+use Cake\Event\EventManager;
+use Crustum\Speculum\Event\SpeculumFlushEvent;
+
+// every N items inside the tool loop — store immediately
+EventManager::instance()->dispatch(new SpeculumFlushEvent());
+```
+
+Cake dispatch resolves listeners by event name, so both styles work; use one per call
+(dual registration, single match — no double store):
+
+- `new SpeculumFlushEvent()` — typed event, name `Speculum.flush`; supports
+  `isThrottled()` accessor.
+- `new Event('Speculum.flush', null, $data)` or `new Event(SpeculumFlushEvent::class, null, $data)` —
+  plain events; no Speculum class import needed beyond the constant.
+
+Pass `['throttled' => true]` to defer to the worker flush policy
+(`Speculum.queue.worker_flush_interval` / `worker_flush_limit`) instead of writing on
+every loop iteration:
+
+```php
+new SpeculumFlushEvent(['throttled' => true]);
+```
+
+Store is a no-op on empty queues, so flushing too often is cheap. Host plugins never
+need `use Crustum\Speculum\Speculum;` — when Speculum is not installed the event simply
+has no listeners.
+
+<a name="authorization"></a>
+## Authorization
+
+Speculum can record every `can()` / `canResult()` authorization check made through the `AuthorizationServiceInterface`. This requires two optional middleware layers that are inserted automatically when the dependencies are loaded:
+
+### Middleware stack
+
+When `authorization/authorization` is installed, Speculum inserts two middleware **before** `RequestAuthorizationMiddleware` (or before `ErrorHandlerMiddleware` as a fallback):
+
+1. **`SpeculumAuthorizationMiddleware`** — decorates the Authorization service on the request attribute so every `can()` / `canResult()` call dispatches a `Speculum.Authorization.checked` event.
+2. **`SpeculumRecordingMiddleware`** — records the HTTP request/response entry (moved before `ErrorHandlerMiddleware` so controller exceptions are still captured).
+
+When CakeDC Auth is loaded, the decorator also resolves the policy class via `PolicyResolver` (reflects into the `MapResolver` to call `getPolicy()`) and stores it in the entry.
+
+### Dashboard Authorization
+
+**Not part of this plugin.** Who may open `/speculum` is decided by the host application (Authentication / Authorization middleware, admin roles, IP allowlists, or loading the plugin only when `debug` is true).
+
+Speculum ships a `config/permissions.php` fragment for CakeDC Auth that sets `bypassAuth => true` on all Speculum routes so anonymous API clients can reach `/speculum/api/*` without requiring a logged-in user. Merge it into your host `config/permissions.php`:
+
+```php
+use Cake\Core\Plugin;
+
+$permissions = array_merge(
+    $permissions,
+    require Plugin::path('Crustum/Speculum') . 'config' . DS . 'permissions.php',
+);
+```
+
+> [!WARNING]
+> `bypassAuth` only skips CakeDC's "logged-in user required" check for the HTTP route. OAuth endpoints still validate credentials; authorization endpoints still require session + `auth_token`. Ensure Speculum is not publicly reachable in production. Prefer loading the plugin only in local/debug environments, or protect `/speculum` with your app's own middleware.
+
+`Speculum::auth($user)` is unrelated: it attaches the current identity to **recorded entries** (tags like `Auth:{id}` and the Authenticated User card), not dashboard login.
 
 <a name="available-watchers"></a>
 ## Available Watchers
@@ -388,6 +467,89 @@ The cache watcher records data when a cache key is hit, missed, updated, or forg
     // ...
 ],
 ```
+
+<a name="authorization-watcher"></a>
+### Authorization Watcher
+
+The authorization watcher (`AuthorizationWatcher`) records authorization checks from two sources:
+
+- **CakeDC Auth RBAC** (`SoftFeature::CakeDCAuth`) — listens to `Auth.Rbac.checked` and `Auth.Authorization.checked` events. Requires `cakedc/cakephp-authentication` or `cakedc/cakephp-authorization`.
+- **Generic `can()`/`canResult()`** (`SoftFeature::Authorization`) — listens to `Speculum.Authorization.checked` events dispatched by `SpeculumAuthorizationMiddleware`. Requires `cakephp/authorization`.
+
+Each entry captures the user, action/ability, result (allowed/denied), resolved policy class, and request params.
+
+Link checks (`$this->AuthLink->link()`) are recorded by default only when **denied** (set `link_checks` to `all` to record allowed links too, or `summary` to aggregate counts). Decorator-based `can()` / `canResult()` calls are deduplicated per ability so repeated checks produce a single entry.
+
+```php
+'watchers' => [
+    Crustum\Speculum\Watcher\AuthorizationWatcher::class => [
+        'enabled' => filter_var(env('SPECULUM_AUTHORIZATION_WATCHER', true), FILTER_VALIDATE_BOOLEAN),
+        'link_checks' => env('SPECULUM_AUTHORIZATION_LINK_CHECKS', 'off'), // 'off' | 'denies' | 'summary' | 'all'
+        'ignore' => [
+            ['plugin' => 'DebugKit'],
+            ['plugin' => 'Crustum/Speculum'],
+            ['plugin' => 'Crustum/Ignis'],
+        ],
+    ],
+    // ...
+],
+```
+
+The `ignore` option skips authorization checks that match. Each rule is either:
+
+- a **string glob** matched against `plugin/controller/action` (legacy form), or
+- an **associative array** of `plugin` / `prefix` / `controller` / `action` globs, where **every given component must match** (AND). A `*` matches any value, including empty (RBAC-style):
+
+```php
+'ignore' => [
+    ['plugin' => 'Crustum/Speculum'],
+    ['plugin' => 'Crustum/Speculum', 'controller' => '*', 'action' => '*'], // same as above
+    ['prefix' => 'admin', 'controller' => 'Users', 'action' => 'login'],
+    ['controller' => '*', 'action' => 'login'],
+],
+```
+
+By default Speculum ignores its own UI/API traffic and DebugKit so the panel stays focused on your application's checks. Because the watcher merges both the CakeDC Auth (`cakedc_auth`) and the generic `authorization` entry types under one resource, the **Authorization** panel lists historical `cakedc_auth` records alongside new `authorization` records.
+
+When neither CakeDC Auth nor `cakephp/authorization` is installed, the watcher silently does nothing.
+
+<a name="ai-watcher"></a>
+### AI Watcher
+
+The AI watcher (`AiWatcher`) records activity from the `Crustum/Ai` plugin (soft-gated by `SoftFeature::Ai`, requires `crustum/ai`). It subscribes to the plugin's exact `Ai.*` events and stores each as a Speculum `ai` entry. The panel appears in the dashboard sidebar as **AI** once `crustum/ai` is loaded.
+
+Each entry captures the event **category**, full event name, **invocation id**, **provider**, **model**, the involved **tool** (short class), **step** number, and an `is_final` flag, plus a sanitizer-safe payload (prompts, messages, tool calls, steps, store/file metadata). Objects are serialized to `{ class, properties }` and the whole tree is run through `SensitiveData` redaction.
+
+Token-usage metrics (`prompt_tokens`, `completion_tokens`, `cache_write_input_tokens`, `cache_read_input_tokens`, `reasoning_tokens`) and `continuation_token` are **counts / provider handles, not secrets** — they are intentionally excluded from redaction and stay visible. Real secrets (`api_token`, `access_token`, …) remain redacted.
+
+Entries are tagged `Ai:<category>` and `provider:<provider>` (when known); operations slower than `slow` are tagged `slow`.
+
+#### Categories
+
+| Category | Meaning | Example `Ai.*` events |
+|----------|---------|----------------------|
+| `agent` | Agent prompts, steps, streams, and agent-level failures | `promptingAgent`, `agentPrompted`, `streamingAgent`, `agentStreamed`, `startingStep`, `stepCompleted`, `stepFailed`, `agentFailedEvent` |
+| `tool` | Tool / function calls made by the agent, including approvals and failures | `invokingTool`, `toolInvoked`, `toolFailed`, `toolApprovalRequested`, `toolApprovalResolved` |
+| `generation` | Model generations: image, audio, transcription, embeddings, rerank | `generatingImage`, `imageGenerated`, `generatingAudio`, `audioGenerated`, `generatingTranscription`, `transcriptionGenerated`, `generatingEmbeddings`, `embeddingsGenerated`, `reranking`, `reranked` |
+| `store` | Vector / AI stores and their file membership | `creatingStore`, `storeCreated`, `storeDeleted`, `addingFileToStore`, `fileAddedToStore`, `removingFileFromStore`, `fileRemovedFromStore` |
+| `file` | File storage operations | `storingFile`, `fileStored`, `fileDeleted` |
+| `failover` | Provider / agent failover | `agentFailedOver`, `providerFailedOver` |
+
+```php
+'watchers' => [
+    Crustum\Speculum\Watcher\AiWatcher::class => [
+        'enabled' => filter_var(env('SPECULUM_AI_WATCHER', true), FILTER_VALIDATE_BOOLEAN),
+        'slow' => (float)env('SPECULUM_AI_SLOW', 1000),
+        'ignore' => [],
+        'categories' => ['agent', 'tool', 'generation', 'store', 'file', 'failover'],
+    ],
+    // ...
+],
+```
+
+- `categories` — only events whose category is in this list are recorded (defaults to all six). Use a subset (for example `['tool', 'generation']`) to reduce noise.
+- `ignore` — exact `Ai.*` event names to skip (for example `'Ai.toolApprovalRequested'`).
+- `slow` — AI operations whose measured duration exceeds this (milliseconds) are tagged `slow`.
 
 <a name="command-watcher"></a>
 ### Command Watcher
@@ -602,11 +764,11 @@ Speculum::hideModelAttributes([
 <a name="mongo-watcher"></a>
 ### Mongo Watcher
 
-When PHP `ext-mongodb` is loaded, Speculum records MongoDB commands via the driver’s public `CommandSubscriber` APM (same idea as the SQL query watcher). Soft-enabled with `extension_loaded('mongodb')` — no CakeDC Mongo dependency. The optional `crustum/speculum-mongo` package remains a demo of Speculum extension panels; prefer this first-party soft watcher for production.
+When PHP `ext-mongodb` is loaded, Speculum records MongoDB commands via the driver's public `CommandSubscriber` APM (same idea as the SQL query watcher). Soft-enabled with `extension_loaded('mongodb')`.
 
 ```php
 'watchers' => [
-    Crustum\Speculum\Watcher\MongoWatcher::class => [
+    Crustum\Speculum\Watcher\Mongo\MongoWatcher::class => [
         'enabled' => filter_var(env('SPECULUM_MONGO_WATCHER', true), FILTER_VALIDATE_BOOLEAN),
         'slow' => (float)env('SPECULUM_MONGO_SLOW', 100), // milliseconds
         'ignore_commands' => [
@@ -619,11 +781,64 @@ When PHP `ext-mongodb` is loaded, Speculum records MongoDB commands via the driv
             'saslStart',
             'saslContinue',
             'getMore',
+            'listCollections',
+            'listIndexes',
+            'listDatabases',
+            'collStats',
+            'dbStats',
+            'abortTransaction',
+            'commitTransaction',
+            'startTransaction',
         ],
     ],
     // ...
 ],
 ```
+
+<a name="crustum-mongo-watcher"></a>
+### Crustum Mongo Watcher
+
+The Crustum Mongo watcher (`CrustumMongoWatcher`) records queries from the `crustum/cakephp-mongo-odm` ODM driver (`Crustum\Mongo\Database\Driver\MongoDriver`). It wraps the driver's PSR-3 logger with `SpeculumMongoQueryLogger` so queries are intercepted before the Mongo logger formats them. Soft-enabled when `SoftFeature::CrustumMongo` is available (the `Crustum/Mongo` plugin must be loaded).
+
+```php
+'watchers' => [
+    Crustum\Speculum\Watcher\Mongo\CrustumMongoWatcher::class => [
+        'enabled' => filter_var(env('SPECULUM_CRUSTUM_MONGO_WATCHER', true), FILTER_VALIDATE_BOOLEAN),
+        'ignore_connections' => [
+            'debug_kit',
+            'test_mongo',
+            'test',
+        ],
+        'slow' => (float)env('SPECULUM_CRUSTUM_MONGO_SLOW', 100),
+    ],
+    // ...
+],
+```
+
+Queries are stored as `mongo_query` entries. Slow queries (above the `slow` threshold in milliseconds) are tagged `slow`.
+
+<a name="mongo-query-log-watcher"></a>
+### Mongo Query Log Watcher
+
+The Mongo Query Log watcher (`MongoQueryLogWatcher`) records Mongo queries that flow through Cake's Log engine (scopes `mongoQueriesLog` / `mongo.database.queries`). It installs a `MongoQueryLogEngine` log backend that forwards matching entries to `CrustumMongoWatcher`. Use this when the Crustum Mongo driver logs via `Log::write()` instead of the PSR-3 logger path.
+
+```php
+'watchers' => [
+    Crustum\Speculum\Watcher\Mongo\MongoQueryLogWatcher::class => [
+        'enabled' => filter_var(env('SPECULUM_MONGO_QUERY_LOG_WATCHER', true), FILTER_VALIDATE_BOOLEAN),
+        'ignore_connections' => [
+            'debug_kit',
+            'test_mongo',
+            'test',
+        ],
+        'scopes' => ['mongoQueriesLog', 'mongo.database.queries'],
+        'slow' => (float)env('SPECULUM_MONGO_QUERY_LOG_SLOW', 100),
+    ],
+    // ...
+],
+```
+
+Queries are stored as `mongo_query_log` entries (separate from the driver-path `mongo_query` entries) so you can distinguish the two recording paths in the dashboard.
 
 <a name="notification-watcher"></a>
 ### Notification Watcher
@@ -635,7 +850,7 @@ The notification watcher records notifications sent by your application when `Mo
 
 The query watcher records the raw SQL, bindings, and execution time for all queries that are executed by your application. The watcher also tags any queries slower than 100 milliseconds as `slow`. You may customize the slow query threshold using the watcher's `slow` option (milliseconds).
 
-SQL that targets Speculum storage tables (`speculum_*`) is always skipped in code. Skip other connections via `ignore_connections` (for example DebugKit’s `debug_kit` connection):
+SQL that targets Speculum storage tables (`speculum_*`) is always skipped in code. Skip other connections via `ignore_connections` (for example DebugKit's `debug_kit` connection). You may also skip specific content types via `ignore_content_types` (glob patterns via `fnmatch`):
 
 ```php
 'watchers' => [
@@ -643,6 +858,9 @@ SQL that targets Speculum storage tables (`speculum_*`) is always skipped in cod
         'enabled' => filter_var(env('SPECULUM_QUERY_WATCHER', true), FILTER_VALIDATE_BOOLEAN),
         'ignore_connections' => [
             'debug_kit',
+        ],
+        'ignore_content_types' => [
+            'text/event-stream',
         ],
         'slow' => (float)env('SPECULUM_QUERY_SLOW', 100),
     ],
@@ -653,7 +871,7 @@ SQL that targets Speculum storage tables (`speculum_*`) is always skipped in cod
 <a name="request-watcher"></a>
 ### Request Watcher
 
-The request watcher records the request, headers, session, response data, and duration associated with any requests handled by the application. Requests slower than 1000 milliseconds are tagged `slow`. You may limit recorded response data via `size_limit` (kilobytes), skip methods with `ignore_http_methods`, skip status codes with `ignore_status_codes`, and customize the slow threshold (milliseconds):
+The request watcher records the request, headers, session, response data, and duration associated with any requests handled by the application. Requests slower than 1000 milliseconds are tagged `slow`. You may limit recorded response data via `size_limit` (kilobytes), skip methods with `ignore_http_methods`, skip status codes with `ignore_status_codes`, skip specific content types with `ignore_content_types` (glob patterns via `fnmatch`), and customize the slow threshold (milliseconds):
 
 ```php
 'watchers' => [
@@ -662,18 +880,48 @@ The request watcher records the request, headers, session, response data, and du
         'size_limit' => (int)env('SPECULUM_RESPONSE_SIZE_LIMIT', 64),
         'ignore_http_methods' => [],
         'ignore_status_codes' => [],
+        'ignore_content_types' => [
+            'text/event-stream',
+        ],
+        'ignore' => [
+            ['plugin' => 'Crustum/Speculum'],
+            ['plugin' => 'Crustum/Ignis'],
+        ],
         'slow' => (float)env('SPECULUM_REQUEST_SLOW', 1000),
     ],
     // ...
 ],
 ```
 
-HTTP paths that should never open a recording window (DebugKit, Rhythm, Monitor, …) are configured under top-level [`ignore_paths`](#filtering-paths-and-commands), not on this watcher.
+The `ignore` option uses the same structured/glob format as the [Authorization watcher](#authorization-watcher) — match on `plugin` / `prefix` / `controller` / `action` (all given components must match; `*` matches any), or a legacy `plugin/controller/action` string glob. It composes with the existing `ignore_http_methods` / `ignore_status_codes` / `ignore_content_types`. It is empty by default; Speculum's own API traffic is usually useful to see when debugging Speculum, but add the rules above to hide it (and Ignis, if used).
+
+Content-type matching strips parameters (e.g. `; charset=UTF-8`) before comparing, so `text/event-stream` matches `text/event-stream; charset=UTF-8`. This prevents Speculum from consuming SSE / AI streaming response bodies, which would break the client connection.
+
+HTTP paths that should never open a recording window (DebugKit, Rhythm, …) are configured under top-level [`ignore_paths`](#filtering-paths-and-commands), not on this watcher.
 
 <a name="schedule-watcher"></a>
 ### Schedule Watcher
 
 The schedule watcher records the command and output of scheduled tasks when `Scheduling.ScheduledTaskFinished` (and related events) fire. Requires `crustum/cakephp-scheduling`.
+
+<a name="explorator-watcher"></a>
+### Explorator Watcher
+
+When `crustum/explorator` is loaded, Speculum records Explorator **searches** (`Explorator.SearchPerformed`) and **index writes** (`Explorator.IndexWritePerformed`) in the **Searches** panel (entry type `explorator`). Slow operations are tagged using the watcher's `slow` threshold (milliseconds).
+
+Request and response payloads are stored by default (SQL-style Data cards). Disable either with watcher options / env. Search vectors in options are truncated to dimensions only; response ids are capped. Full Meilisearch HTTP wire dumps are not stored.
+
+```php
+'watchers' => [
+    Crustum\Speculum\Watcher\SearchesWatcher::class => [
+        'enabled' => filter_var(env('SPECULUM_SEARCHES_WATCHER', true), FILTER_VALIDATE_BOOLEAN),
+        'slow' => (float)env('SPECULUM_SEARCHES_SLOW', 100), // milliseconds
+        'request' => filter_var(env('SPECULUM_SEARCHES_REQUEST', true), FILTER_VALIDATE_BOOLEAN),
+        'response' => filter_var(env('SPECULUM_SEARCHES_RESPONSE', true), FILTER_VALIDATE_BOOLEAN),
+    ],
+    // ...
+],
+```
 
 <a name="vardump-watcher"></a>
 ### VarDump Watcher
@@ -761,6 +1009,25 @@ bin/cake speculum mcp
 ```
 
 This delegates to `bin/cake mcp start cake-speculum`. Use Ignis MCP for schema, routes, config, and tinker — not Speculum.
+
+<a name="console-inspection"></a>
+## Console inspection
+
+Without opening the dashboard, `bin/cake speculum list` and `bin/cake speculum show` read the same entry store from the terminal. Every request, job, and command is recorded as a **batch**: the entry itself plus every query, cache operation, log, event, exception, and view it produced.
+
+```bash
+# Find the entry: list requests (or exception, job, query, cache) and copy its UUID
+bin/cake speculum list request
+
+# Show the batch: entry detail plus Queries, Exceptions, Cache, and Logs sections
+bin/cake speculum show <uuid>
+
+# Most recent entry overall, or of one type
+bin/cake speculum show latest
+bin/cake speculum show latest:exception
+```
+
+Short UUID prefixes work wherever a UUID is accepted (`show 2f40a1c6` resolves to the latest match). Both commands accept `--json`: `list --json` prints an array of entries, `show --json` prints `{"entry": {...}, "batch": [...]}` with the batch in chronological order. `show <id> --type=query,exception` limits batch context to those types; `show <id> --full` disables truncation of table output (`--json` is never truncated). `list` filters with `--tag`, `--batch`, `--family`, and `--before` (pagination cursor from the footer); `--limit` caps the rows. Neither command records entries while it runs.
 
 <a name="custom-plugins-and-panels"></a>
 ## Custom Plugins and Panels

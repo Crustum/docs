@@ -5,7 +5,7 @@
 
 The **Saloon** plugin integrates [Saloon v4](https://docs.saloon.dev) — a powerful, modern PHP library for building API integrations and SDKs — with CakePHP 5. Saloon provides an elegant, object-oriented approach to HTTP client interactions with support for authentication, request/response handling, testing, pagination, caching, and rate limiting.
 
-This plugin brings all of Saloon's features to CakePHP while adding framework-specific conveniences. The plugin includes automatic CakePHP event dispatching for every HTTP request and response, CLI generators via Bake commands for quickly scaffolding connectors and requests, and comprehensive testing helpers that integrate with CakePHP's test suite. Configuration follows standard CakePHP patterns, and the plugin provides bridges to CakePHP's cache system for response caching and rate limiting.
+This plugin brings all of Saloon's features to CakePHP while adding framework-specific conveniences. The plugin includes automatic CakePHP event dispatching for every HTTP request and response, CLI generators via Bake commands for quickly scaffolding connectors and requests, and comprehensive testing helpers that integrate with CakePHP's test suite. Configuration follows standard CakePHP patterns, and the plugin provides bridges to CakePHP's cache system for response caching and rate limiting. Optional global middlewares also feed CakePHP's [Speculum](#speculum) and [Rhythm](#rhythm) monitoring plugins with zero extra wiring.
 
 <a name="supported-features"></a>
 #### Supported Features
@@ -185,6 +185,9 @@ if (file_exists(CONFIG . 'saloon.php')) {
 The default configuration:
 
 ```php
+use Crustum\Saloon\Cache\CacheDriver;
+use Crustum\Saloon\RateLimit\CacheStore;
+
 return [
     'Saloon' => [
         'default_sender' => \Saloon\Http\Senders\GuzzleSender::class,
@@ -193,11 +196,18 @@ return [
         'middleware' => [
             'mock' => true,
             'events' => true,
-            'record_response' => false,
+            'speculum' => false,
+            'rhythm' => false,
         ],
         'ecosystem' => [
-            'cache' => ['config' => 'default'],
-            'rate_limit' => ['config' => 'default'],
+            'cache' => [
+                'config' => 'default',
+                'driver' => CacheDriver::class,
+            ],
+            'rate_limit' => [
+                'config' => 'default',
+                'store' => CacheStore::class,
+            ],
         ],
     ],
 ];
@@ -215,6 +225,8 @@ composer require saloonphp/cache-plugin        # Response caching
 composer require saloonphp/rate-limit-plugin   # Rate limiting
 composer require saloonphp/pagination-plugin   # Pagination support
 composer require saloonphp/xml-wrangler        # Advanced XML handling
+composer require crustum/speculum              # Speculum monitoring
+composer require crustum/rhythm                # Rhythm monitoring
 ```
 
 <a name="the-basics"></a>
@@ -648,6 +660,12 @@ class SpotifyConnector extends Connector
             ->setUserEndpoint('https://api.spotify.com/v1/me');
     }
 }
+```
+
+Scaffold an OAuth2 connector (with the `AuthorizationCodeGrant` trait and `defaultOauthConfig()`) using the bake generator:
+
+```bash
+bin/cake bake saloon_connector Spotify Spotify --oauth
 ```
 
 OAuth2 flow:
@@ -1662,19 +1680,75 @@ class GitHubConnector extends Connector implements Cacheable
 <a name="cache-configuration"></a>
 ### Cache Configuration
 
-Configure the CakePHP cache config in `config/saloon.php`:
+Configure the CakePHP cache config and driver in `config/saloon.php`:
 
 ```php
+use Crustum\Saloon\Cache\CacheDriver;
+
 return [
     'Saloon' => [
         'ecosystem' => [
-            'cache' => ['config' => 'default'],
+            'cache' => [
+                'config' => 'default',
+                'driver' => CacheDriver::class,
+            ],
         ],
     ],
 ];
 ```
 
-The driver uses `Cache::pool()` (PSR-6) for TTL-aware storage.
+The default `CacheDriver` uses `Cache::pool($config)` (PSR-6) for TTL-aware storage.
+
+<a name="custom-cache-driver"></a>
+### Custom Cache Driver
+
+`SaloonConfig::cacheDriver()` returns a `Saloon\CachePlugin\Contracts\Driver` and resolves `ecosystem.cache.driver`, so you are not limited to the Cake cache bridge. It accepts:
+
+- a `Driver` instance,
+- a factory callable returning a `Driver`,
+- a service id / class resolvable from the application container.
+
+For example, to store cached responses on a Flysystem filesystem, register the driver in your application's `services()` and point the config at it:
+
+```php
+// src/Application.php
+use League\Flysystem\Filesystem;
+use League\Flysystem\Local\LocalFilesystemAdapter;
+use Saloon\CachePlugin\Drivers\FlysystemDriver;
+
+public function services(ContainerInterface $container): void
+{
+    $container->addShared('saloon.flysystem.cache', fn(): FlysystemDriver => new FlysystemDriver(
+        new Filesystem(new LocalFilesystemAdapter(ROOT . DS . 'tmp' . DS . 'saloon-cache')),
+    ));
+}
+```
+
+```php
+// config/saloon.php
+return [
+    'Saloon' => [
+        'ecosystem' => [
+            'cache' => [
+                'driver' => 'saloon.flysystem.cache',
+            ],
+        ],
+    ],
+];
+```
+
+An inline factory works too, which is handy for tests or single-file setups:
+
+```php
+'ecosystem' => [
+    'cache' => [
+        'driver' => fn(): Driver => new FlysystemDriver($filesystem),
+    ],
+],
+```
+
+> [!NOTE]
+> The plugin does not register the bridge classes in the container itself, so the app's `services()` bindings always win. Configure `ecosystem.cache.driver` (or pass a `Driver` instance) to swap implementations.
 
 <a name="invalidating-cache"></a>
 ### Invalidating Cache
@@ -1760,17 +1834,24 @@ protected function resolveRateLimitStore(): RateLimitStore
 }
 ```
 
-Configure the CakePHP cache config in `config/saloon.php`:
+Configure the CakePHP cache config and store in `config/saloon.php`:
 
 ```php
+use Crustum\Saloon\RateLimit\CacheStore;
+
 return [
     'Saloon' => [
         'ecosystem' => [
-            'rate_limit' => ['config' => 'default'],
+            'rate_limit' => [
+                'config' => 'default',
+                'store' => CacheStore::class,
+            ],
         ],
     ],
 ];
 ```
+
+Like `cacheDriver()`, `SaloonConfig::rateLimitStore()` returns a `Saloon\RateLimitPlugin\Contracts\RateLimitStore` and resolves `ecosystem.rate_limit.store` from a `RateLimitStore` instance, a factory callable, or an application container service id/class — so any custom store can be swapped in without touching the plugin.
 
 <a name="rate-limit-configuration"></a>
 ### Rate Limit Configuration
@@ -1911,6 +1992,89 @@ use Cake\Event\EventManager;
 EventManager::instance()->on(new SaloonRequestLogger());
 ```
 
+<a name="application-monitoring"></a>
+### Application Monitoring
+
+Saloon ships two optional global middlewares that feed CakePHP's application monitoring plugins. Each is opt-in, silently disables itself when its plugin is not installed, and reads the same configuration the plugin's native watcher/recorder uses — so disabling the watcher or recorder in the monitoring plugin also disables Saloon recording, with no extra wiring.
+
+| Middleware | Plugin | Records |
+|------------|--------|---------|
+| `middleware.speculum` | `crustum/speculum` | Every Saloon request/response as an `http_client` entry |
+| `middleware.rhythm` | `crustum/rhythm` | Slow Saloon requests as a `slow_outgoing_request` metric |
+
+Install the plugin you want to use, then enable its toggle:
+
+```bash
+composer require crustum/speculum
+composer require crustum/rhythm
+```
+
+```php
+// config/saloon.php
+return [
+    'Saloon' => [
+        'middleware' => [
+            'speculum' => true,
+            'rhythm' => true,
+        ],
+    ],
+];
+```
+
+<a name="speculum"></a>
+#### Speculum
+
+When `middleware.speculum` is enabled and `crustum/speculum` is installed, every `$connector->send()` is recorded to Speculum as an `http_client` entry — method, URI, headers, payload, response status/headers/body, and duration. Entries appear in the **HTTP Clients** panel.
+
+Recording respects the native `HttpClientWatcher` configuration:
+
+- Speculum must be recording and the `HttpClientWatcher` must be enabled.
+- Hosts matched by the watcher's `ignore_hosts` option are skipped.
+- `Speculum::$hiddenRequestHeaders`, `$hiddenRequestParameters`, and `$hiddenResponseParameters` redaction is applied before the entry is stored.
+
+```php
+return [
+    'Speculum' => [
+        'watchers' => [
+            \Crustum\Speculum\Watcher\HttpClientWatcher::class => [
+                'enabled' => true,
+                'ignore_hosts' => ['internal.example.com'],
+            ],
+        ],
+    ],
+];
+```
+
+<a name="rhythm"></a>
+#### Rhythm
+
+When `middleware.rhythm` is enabled and `crustum/rhythm` is installed, slow Saloon requests are recorded using the same metric the native `OutgoingRequestRecorder` writes: type `slow_outgoing_request`, key `[method, groupedUri]`, duration value, with `max` and `count` aggregations. Measurements appear in the **Slow Outgoing Requests** widget.
+
+Recording is driven entirely by the native recorder configuration:
+
+```php
+return [
+    'Rhythm' => [
+        'recorders' => [
+            'slow_outgoing_requests' => [
+                'enabled' => true,
+                'threshold' => [
+                    'default' => 1000,
+                    '/^https?:\/\/api\./' => 500,
+                ],
+                'sample_rate' => 1.0,
+                'ignore' => ['/^https?:\/\/localhost/'],
+                'groups' => [
+                    '#^(https?://api\.[^/]+)/([^/]+)/(\d+)#' => '\1/\2/{id}',
+                ],
+            ],
+        ],
+    ],
+];
+```
+
+Because the Saloon middleware reads the same configuration, disabling the recorder (`enabled => false`) or raising its `threshold` also stops Saloon from recording — there is no separate Saloon-side option block to keep in sync.
+
 <a name="cli-generators"></a>
 ### CLI Generators
 
@@ -1920,7 +2084,7 @@ Generate Saloon integration classes using CakePHP Bake:
 
 | Command | Arguments | Output |
 |---------|-----------|--------|
-| `bake saloon_connector` | `{integration} {name}` | `{Integration}Connector.php` |
+| `bake saloon_connector` | `{integration} {name} [--oauth]` | `{Integration}Connector.php` |
 | `bake saloon_request` | `{integration} {name}` | `Requests/{Name}Request.php` |
 | `bake saloon_response` | `{integration} {name}` | `Responses/{Name}Response.php` |
 | `bake saloon_plugin` | `{integration} {name}` | `Plugins/{Name}Plugin.php` |
@@ -1932,6 +2096,9 @@ Generate Saloon integration classes using CakePHP Bake:
 ```bash
 # Create a connector
 bin/cake bake saloon_connector JsonPlaceholder JsonPlaceholder
+
+# Create a connector with OAuth2 Authorization Code Grant boilerplate
+bin/cake bake saloon_connector Spotify Spotify --oauth
 
 # Create a request
 bin/cake bake saloon_request JsonPlaceholder GetPost --method GET
@@ -1970,18 +2137,28 @@ All configuration is nested under the `Saloon` key in `config/saloon.php`:
 
 | Key | Default | Description |
 |-----|---------|-------------|
-| `default_sender` | `GuzzleSender::class` | Global Saloon HTTP sender class |
+| `default_sender` | `GuzzleSender::class` | Global Saloon sender class (must implement `Saloon\Contracts\Sender`, otherwise Guzzle is used) |
 | `integrations_path` | `src/Http/Integrations` | Directory for generated integrations |
 | `integrations_namespace` | `App\Http\Integrations` | PHP namespace for generated classes |
 | `middleware.mock` | `true` | Attach global mock client when faking |
 | `middleware.events` | `true` | Dispatch CakePHP events on every send |
-| `middleware.record_response` | `false` | Deprecated response recording helper |
-| `ecosystem.cache.config` | `default` | CakePHP cache config for cache plugin |
-| `ecosystem.rate_limit.config` | `default` | CakePHP cache config for rate limit store |
+| `middleware.speculum` | `false` | Record Saloon requests in Speculum (requires `crustum/speculum`) |
+| `middleware.rhythm` | `false` | Record slow Saloon requests in Rhythm (requires `crustum/rhythm`) |
+| `ecosystem.cache.config` | `default` | CakePHP cache config used by the cache plugin bridge |
+| `ecosystem.cache.driver` | `CacheDriver::class` | Cache plugin driver instance, factory, or container service |
+| `ecosystem.rate_limit.config` | `default` | CakePHP cache config used by the rate limit store bridge |
+| `ecosystem.rate_limit.store` | `CacheStore::class` | Rate limit store instance, factory, or container service |
+
+See [Application Monitoring](#application-monitoring) for the Speculum and Rhythm middlewares.
+
+The deprecated response recording middleware (`RecordResponse`) is always registered and records only while `Saloon::record()` is active; call `Saloon::stopRecording()` to disable it.
 
 Example configuration:
 
 ```php
+use Crustum\Saloon\Cache\CacheDriver;
+use Crustum\Saloon\RateLimit\CacheStore;
+
 return [
     'Saloon' => [
         'default_sender' => \Saloon\Http\Senders\GuzzleSender::class,
@@ -1990,11 +2167,18 @@ return [
         'middleware' => [
             'mock' => true,
             'events' => true,
-            'record_response' => false,
+            'speculum' => false,
+            'rhythm' => false,
         ],
         'ecosystem' => [
-            'cache' => ['config' => 'default'],
-            'rate_limit' => ['config' => 'default'],
+            'cache' => [
+                'config' => 'default',
+                'driver' => CacheDriver::class,
+            ],
+            'rate_limit' => [
+                'config' => 'default',
+                'store' => CacheStore::class,
+            ],
         ],
     ],
 ];
@@ -2165,6 +2349,48 @@ Saloon::fake([
     '*' => MockResponse::make(['message' => 'Not Found'], 404),
 ]);
 ```
+
+<a name="saloon-trait"></a>
+### Saloon Trait
+
+The CakePHP-idiomatic way to mock Saloon requests is the `SaloonTrait`, which follows the same pattern as CakePHP's `Cake\Http\TestSuite\HttpClientTrait`. Add it to a test case to get mock helpers, assertion shorthands, and automatic cleanup after each test:
+
+```php
+use Cake\TestSuite\TestCase;
+use Crustum\Saloon\TestSuite\SaloonTrait;
+use Saloon\Http\Faking\MockResponse;
+
+class GitHubTest extends TestCase
+{
+    use SaloonTrait;
+
+    public function testGetUser(): void
+    {
+        $this->fakeSaloon([
+            GetUserRequest::class => MockResponse::make(['login' => 'octocat'], 200),
+        ]);
+
+        (new GitHubConnector($this->token))->send(new GetUserRequest('octocat'));
+
+        $this->assertSaloonSent(GetUserRequest::class);
+        $this->assertSaloonSentCount(1);
+    }
+}
+```
+
+| Method | Description |
+|--------|-------------|
+| `fakeSaloon(array $responses)` | Register mock responses on the global mock client |
+| `assertSaloonSent($value)` | Assert a request was sent (class or callback matcher) |
+| `assertSaloonNotSent($value)` | Assert a request was not sent |
+| `assertSaloonSentJson($class, $data)` | Assert a request was sent with the given JSON payload |
+| `assertSaloonNothingSent()` | Assert no requests were sent |
+| `assertSaloonSentCount($count)` | Assert the number of requests sent |
+
+The trait clears mocked responses, deprecated recorded responses, and APM timing state after every test via a PHPUnit `#[After]` hook, so there is no manual `setUp()` cleanup. The static [`Crustum\Saloon\Saloon`](#assertions) helpers remain available for parity and for tests that prefer explicit reset calls.
+
+> [!NOTE]
+> The Laravel plugin's deprecated `Saloon\Laravel\Http\Faking\MockClient` wrapper is intentionally not ported. Use `SaloonTrait` (or the `Saloon` static helpers) instead.
 
 <a name="event-testing"></a>
 ### Event Testing
